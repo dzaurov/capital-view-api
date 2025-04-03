@@ -1,0 +1,2176 @@
+{
+    "schemes": [
+        "http",
+        "https"
+    ],
+    "swagger": "2.0",
+    "info": {
+        "description": "This is a sample server for managing data based on the provided schema.",
+        "title": "Your API Title",
+        "termsOfService": "http://swagger.io/terms/",
+        "contact": {
+            "name": "API Support",
+            "url": "http://www.swagger.io/support",
+            "email": "support@swagger.io"
+        },
+        "license": {
+            "name": "Apache 2.0",
+            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+        },
+        "version": "1.0"
+    },
+    "host": "localhost:8080",
+    "basePath": "/api/v1",
+    "paths": {
+        "/balance-sheets": {
+            "get": {
+                "description": "Retrieve a list of all balance sheet records",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "balance-sheets"
+                ],
+                "summary": "Get all balance sheet entries",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.BalanceSheet"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.HTTPError"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Add a new balance sheet record to the database",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "balance-sheets"
+                ],
+                "summary": "Create a new balance sheet entry",
+                "parameters": [
+                    {
+                        "description": "Balance Sheet data to create",
+                        "name": "balanceSheet",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.BalanceSheet"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/models.BalanceSheet"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request - Invalid input data",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
+        "/balance-sheets/{id}": {
+            "get": {
+                "description": "Retrieve details of a specific balance sheet record using its ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "balance-sheets"
+                ],
+                "summary": "Get a single balance sheet entry by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Balance Sheet ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.BalanceSheet"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request - Invalid ID format",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found - Balance Sheet not found",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.HTTPError"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Modify the details of an existing balance sheet record by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "balance-sheets"
+                ],
+                "summary": "Update an existing balance sheet entry",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Balance Sheet ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Balance Sheet data to update",
+                        "name": "balanceSheet",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.BalanceSheet"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.BalanceSheet"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request - Invalid ID format or input data",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found - Balance Sheet not found",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.HTTPError"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Remove a balance sheet record from the database using its ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "balance-sheets"
+                ],
+                "summary": "Delete a balance sheet entry by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Balance Sheet ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success message",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request - Invalid ID format",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found - Balance Sheet not found",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
+        "/beneficial-owners": {
+            "get": {
+                "description": "Retrieve a list of all beneficial owner records",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "beneficial-owners"
+                ],
+                "summary": "Get all beneficial owner entries",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.BeneficialOwner"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.HTTPError"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Add a new beneficial owner record to the database",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "beneficial-owners"
+                ],
+                "summary": "Create a new beneficial owner entry",
+                "parameters": [
+                    {
+                        "description": "Beneficial Owner data to create",
+                        "name": "beneficialOwner",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.BeneficialOwner"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/models.BeneficialOwner"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request - Invalid input data",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
+        "/beneficial-owners/{id}": {
+            "get": {
+                "description": "Retrieve details of a specific beneficial owner record using its ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "beneficial-owners"
+                ],
+                "summary": "Get a single beneficial owner entry by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Beneficial Owner ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.BeneficialOwner"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request - Invalid ID format",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found - Beneficial Owner not found",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.HTTPError"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Modify the details of an existing beneficial owner record by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "beneficial-owners"
+                ],
+                "summary": "Update an existing beneficial owner entry",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Beneficial Owner ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Beneficial Owner data to update",
+                        "name": "beneficialOwner",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.BeneficialOwner"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.BeneficialOwner"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request - Invalid ID format or input data",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found - Beneficial Owner not found",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.HTTPError"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Remove a beneficial owner record from the database using its ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "beneficial-owners"
+                ],
+                "summary": "Delete a beneficial owner entry by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Beneficial Owner ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success message",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request - Invalid ID format",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found - Beneficial Owner not found",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
+        "/cash-flow-statements": {
+            "get": {
+                "description": "Retrieve a list of all cash flow statement records",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "cash-flow-statements"
+                ],
+                "summary": "Get all cash flow statement entries",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.CashFlowStatement"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.HTTPError"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Add a new cash flow statement record to the database",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "cash-flow-statements"
+                ],
+                "summary": "Create a new cash flow statement entry",
+                "parameters": [
+                    {
+                        "description": "Cash Flow Statement data to create",
+                        "name": "cashFlowStatement",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.CashFlowStatement"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/models.CashFlowStatement"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request - Invalid input data",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
+        "/cash-flow-statements/{id}": {
+            "get": {
+                "description": "Retrieve details of a specific cash flow statement record using its ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "cash-flow-statements"
+                ],
+                "summary": "Get a single cash flow statement entry by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Cash Flow Statement ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.CashFlowStatement"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request - Invalid ID format",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found - Cash Flow Statement not found",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.HTTPError"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Modify the details of an existing cash flow statement record by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "cash-flow-statements"
+                ],
+                "summary": "Update an existing cash flow statement entry",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Cash Flow Statement ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Cash Flow Statement data to update",
+                        "name": "cashFlowStatement",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.CashFlowStatement"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.CashFlowStatement"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request - Invalid ID format or input data",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found - Cash Flow Statement not found",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.HTTPError"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Remove a cash flow statement record from the database using its ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "cash-flow-statements"
+                ],
+                "summary": "Delete a cash flow statement entry by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Cash Flow Statement ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success message",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request - Invalid ID format",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found - Cash Flow Statement not found",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
+        "/financial-statements": {
+            "get": {
+                "description": "Retrieve a list of all financial statement records",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "financial-statements"
+                ],
+                "summary": "Get all financial statement entries",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.FinancialStatement"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.HTTPError"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Add a new financial statement record to the database",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "financial-statements"
+                ],
+                "summary": "Create a new financial statement entry",
+                "parameters": [
+                    {
+                        "description": "Financial Statement data to create",
+                        "name": "financialStatement",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.FinancialStatement"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/models.FinancialStatement"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request - Invalid input data",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
+        "/financial-statements/{id}": {
+            "get": {
+                "description": "Retrieve details of a specific financial statement record using its ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "financial-statements"
+                ],
+                "summary": "Get a single financial statement entry by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Financial Statement ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.FinancialStatement"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request - Invalid ID format",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found - Financial Statement not found",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.HTTPError"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Modify the details of an existing financial statement record by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "financial-statements"
+                ],
+                "summary": "Update an existing financial statement entry",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Financial Statement ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Financial Statement data to update",
+                        "name": "financialStatement",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.FinancialStatement"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.FinancialStatement"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request - Invalid ID format or input data",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found - Financial Statement not found",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.HTTPError"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Remove a financial statement record from the database using its ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "financial-statements"
+                ],
+                "summary": "Delete a financial statement entry by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Financial Statement ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success message",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request - Invalid ID format",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found - Financial Statement not found",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
+        "/income-statements": {
+            "get": {
+                "description": "Retrieve a list of all income statement records",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "income-statements"
+                ],
+                "summary": "Get all income statement entries",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.IncomeStatement"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.HTTPError"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Add a new income statement record to the database",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "income-statements"
+                ],
+                "summary": "Create a new income statement entry",
+                "parameters": [
+                    {
+                        "description": "Income Statement data to create",
+                        "name": "incomeStatement",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.IncomeStatement"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/models.IncomeStatement"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request - Invalid input data",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
+        "/income-statements/{id}": {
+            "get": {
+                "description": "Retrieve details of a specific income statement record using its ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "income-statements"
+                ],
+                "summary": "Get a single income statement entry by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Income Statement ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.IncomeStatement"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request - Invalid ID format",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found - Income Statement not found",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.HTTPError"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Modify the details of an existing income statement record by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "income-statements"
+                ],
+                "summary": "Update an existing income statement entry",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Income Statement ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Income Statement data to update",
+                        "name": "incomeStatement",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.IncomeStatement"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.IncomeStatement"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request - Invalid ID format or input data",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found - Income Statement not found",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.HTTPError"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Remove an income statement record from the database using its ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "income-statements"
+                ],
+                "summary": "Delete an income statement entry by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Income Statement ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success message",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request - Invalid ID format",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found - Income Statement not found",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
+        "/members": {
+            "get": {
+                "description": "Retrieve a list of all member records",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "members"
+                ],
+                "summary": "Get all member entries",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Member"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.HTTPError"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Add a new member record to the database",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "members"
+                ],
+                "summary": "Create a new member entry",
+                "parameters": [
+                    {
+                        "description": "Member data to create",
+                        "name": "member",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Member"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/models.Member"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request - Invalid input data",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
+        "/members/{id}": {
+            "get": {
+                "description": "Retrieve details of a specific member record using its ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "members"
+                ],
+                "summary": "Get a single member entry by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Member ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Member"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request - Invalid ID format",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found - Member not found",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.HTTPError"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Modify the details of an existing member record by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "members"
+                ],
+                "summary": "Update an existing member entry",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Member ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Member data to update",
+                        "name": "member",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Member"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Member"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request - Invalid ID format or input data",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found - Member not found",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.HTTPError"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Remove a member record from the database using its ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "members"
+                ],
+                "summary": "Delete a member entry by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Member ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success message",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request - Invalid ID format",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found - Member not found",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
+        "/registers": {
+            "get": {
+                "description": "Retrieve a list of all register records",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "registers"
+                ],
+                "summary": "Get all register entries",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Register"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.HTTPError"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Add a new register record to the database",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "registers"
+                ],
+                "summary": "Create a new register entry",
+                "parameters": [
+                    {
+                        "description": "Register data to create",
+                        "name": "register",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Register"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/models.Register"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request - Invalid input data",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
+        "/registers/{id}": {
+            "get": {
+                "description": "Retrieve details of a specific register record using its ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "registers"
+                ],
+                "summary": "Get a single register entry by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Register ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Register"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request - Invalid ID format",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found - Register not found",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.HTTPError"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Modify the details of an existing register record by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "registers"
+                ],
+                "summary": "Update an existing register entry",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Register ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Register data to update",
+                        "name": "register",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Register"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Register"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request - Invalid ID format or input data",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found - Register not found",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.HTTPError"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Remove a register record from the database using its ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "registers"
+                ],
+                "summary": "Delete a register entry by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Register ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success message",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request - Invalid ID format",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found - Register not found",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
+        "/search/detailed": {
+            "get": {
+                "description": "Ищет компании по части названия, Regcode, SEPA, имени бенефициара или участника (member). Возвращает список компаний с полной информацией.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "search"
+                ],
+                "summary": "Расширенный поиск компаний",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Поисковый запрос (название, Regcode, SEPA, имя)",
+                        "name": "q",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Список найденных компаний с детальной информацией",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.CompanySearchResult"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный запрос - отсутствует параметр 'q'",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.HTTPError"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "handlers.HTTPError": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.BalanceSheet": {
+            "type": "object",
+            "properties": {
+                "accounts_receivable": {
+                    "type": "string"
+                },
+                "cash": {
+                    "type": "string"
+                },
+                "current_liabilities": {
+                    "type": "string"
+                },
+                "equity": {
+                    "type": "string"
+                },
+                "file_id": {
+                    "type": "string"
+                },
+                "fixed_assets": {
+                    "type": "string"
+                },
+                "future_housing_repairs_payments": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "intangible_assets": {
+                    "type": "string"
+                },
+                "inventories": {
+                    "type": "string"
+                },
+                "investments": {
+                    "type": "string"
+                },
+                "marketable_securities": {
+                    "type": "string"
+                },
+                "non_current_liabilities": {
+                    "type": "string"
+                },
+                "provisions": {
+                    "type": "string"
+                },
+                "statement_id": {
+                    "type": "string"
+                },
+                "total_assets": {
+                    "type": "string"
+                },
+                "total_current_assets": {
+                    "type": "string"
+                },
+                "total_equities": {
+                    "type": "string"
+                },
+                "total_non_current_assets": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.BeneficialOwner": {
+            "type": "object",
+            "properties": {
+                "birth_date": {
+                    "type": "string"
+                },
+                "forename": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "last_modified_at": {
+                    "type": "string"
+                },
+                "latvian_identity_number_masked": {
+                    "type": "string"
+                },
+                "legal_entity_registration_number": {
+                    "type": "string"
+                },
+                "nationality": {
+                    "type": "string"
+                },
+                "registered_on": {
+                    "type": "string"
+                },
+                "residence": {
+                    "type": "string"
+                },
+                "surname": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.CashFlowStatement": {
+            "type": "object",
+            "properties": {
+                "at_beginning_of_year": {
+                    "type": "string"
+                },
+                "at_end_of_year": {
+                    "type": "string"
+                },
+                "cff_dividends_paid": {
+                    "type": "string"
+                },
+                "cff_loans_received": {
+                    "type": "string"
+                },
+                "cff_net_financing_cash_flow": {
+                    "type": "string"
+                },
+                "cff_proceeds_from_stocks_bonds_issuance_or_contributed_capital": {
+                    "type": "string"
+                },
+                "cff_repayments_of_lease_obligations": {
+                    "type": "string"
+                },
+                "cff_repayments_of_loans_made": {
+                    "type": "string"
+                },
+                "cff_subsidies_grants_donations_received": {
+                    "type": "string"
+                },
+                "cfi_acquisition_of_fixed_assets_intangible_assets": {
+                    "type": "string"
+                },
+                "cfi_acquisition_of_stocks_shares": {
+                    "type": "string"
+                },
+                "cfi_dividends_received": {
+                    "type": "string"
+                },
+                "cfi_interest_received": {
+                    "type": "string"
+                },
+                "cfi_loans_made": {
+                    "type": "string"
+                },
+                "cfi_net_investing_cash_flow": {
+                    "type": "string"
+                },
+                "cfi_repayments_of_loans_received": {
+                    "type": "string"
+                },
+                "cfi_sale_proceeds_from_fixed_assets_intangible_assets": {
+                    "type": "string"
+                },
+                "cfi_sale_proceeds_from_stocks_shares": {
+                    "type": "string"
+                },
+                "cfo_dm_cash_paid_to_suppliers_employees": {
+                    "type": "string"
+                },
+                "cfo_dm_cash_received_from_customers": {
+                    "type": "string"
+                },
+                "cfo_dm_extra_items_cash_flow": {
+                    "type": "string"
+                },
+                "cfo_dm_income_taxes_paid": {
+                    "type": "string"
+                },
+                "cfo_dm_interest_paid": {
+                    "type": "string"
+                },
+                "cfo_dm_net_operating_cash_flow": {
+                    "type": "string"
+                },
+                "cfo_dm_operating_cash_flow": {
+                    "type": "string"
+                },
+                "cfo_dm_other_cash_received_paid": {
+                    "type": "string"
+                },
+                "cfo_im_extra_items_cash_flow": {
+                    "type": "string"
+                },
+                "cfo_im_income_before_changes_in_working_capital": {
+                    "type": "string"
+                },
+                "cfo_im_income_before_income_taxes": {
+                    "type": "string"
+                },
+                "cfo_im_income_taxes_paid": {
+                    "type": "string"
+                },
+                "cfo_im_interest_paid": {
+                    "type": "string"
+                },
+                "cfo_im_net_operating_cash_flow": {
+                    "type": "string"
+                },
+                "cfo_im_operating_cash_flow": {
+                    "type": "string"
+                },
+                "effect_of_exchange_rate_change": {
+                    "type": "string"
+                },
+                "file_id": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "net_increase": {
+                    "type": "string"
+                },
+                "statement_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.CompanySearchResult": {
+            "type": "object",
+            "properties": {
+                "beneficial_owners": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.BeneficialOwner"
+                    }
+                },
+                "financial_reports": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.FinancialReportDetail"
+                    }
+                },
+                "members": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Member"
+                    }
+                },
+                "register_info": {
+                    "description": "Сделаем основным, не опциональным",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.Register"
+                        }
+                    ]
+                }
+            }
+        },
+        "models.FinancialReportDetail": {
+            "type": "object",
+            "properties": {
+                "balance_sheet": {
+                    "$ref": "#/definitions/models.BalanceSheet"
+                },
+                "cash_flow_statement": {
+                    "$ref": "#/definitions/models.CashFlowStatement"
+                },
+                "financial_statement_info": {
+                    "$ref": "#/definitions/models.FinancialStatement"
+                },
+                "income_statement": {
+                    "$ref": "#/definitions/models.IncomeStatement"
+                }
+            }
+        },
+        "models.FinancialStatement": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "currency": {
+                    "type": "string"
+                },
+                "employees": {
+                    "type": "string"
+                },
+                "file_id": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "legal_entity_registration_number": {
+                    "type": "string"
+                },
+                "rounded_to_nearest": {
+                    "type": "string"
+                },
+                "source_schema": {
+                    "type": "string"
+                },
+                "source_type": {
+                    "type": "string"
+                },
+                "year": {
+                    "type": "string"
+                },
+                "year_ended_on": {
+                    "type": "string"
+                },
+                "year_started_on": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.IncomeStatement": {
+            "type": "object",
+            "properties": {
+                "by_function_administrative_expenses": {
+                    "type": "string"
+                },
+                "by_function_cost_of_goods_sold": {
+                    "type": "string"
+                },
+                "by_function_gross_profit": {
+                    "type": "string"
+                },
+                "by_function_other_operating_revenues": {
+                    "type": "string"
+                },
+                "by_function_selling_expenses": {
+                    "type": "string"
+                },
+                "by_nature_depreciation_expenses": {
+                    "type": "string"
+                },
+                "by_nature_inventory_change": {
+                    "type": "string"
+                },
+                "by_nature_labour_expenses": {
+                    "type": "string"
+                },
+                "by_nature_long_term_investment_expenses": {
+                    "type": "string"
+                },
+                "by_nature_material_expenses": {
+                    "type": "string"
+                },
+                "by_nature_other_operating_revenues": {
+                    "type": "string"
+                },
+                "equity_investment_earnings": {
+                    "type": "string"
+                },
+                "extra_dividends": {
+                    "type": "string"
+                },
+                "extra_expenses": {
+                    "type": "string"
+                },
+                "extra_revenues": {
+                    "type": "string"
+                },
+                "file_id": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "income_after_income_taxes": {
+                    "type": "string"
+                },
+                "income_before_income_taxes": {
+                    "type": "string"
+                },
+                "interest_expenses": {
+                    "type": "string"
+                },
+                "investment_fair_value_adjustments": {
+                    "type": "string"
+                },
+                "net_income": {
+                    "type": "string"
+                },
+                "net_turnover": {
+                    "type": "string"
+                },
+                "other_interest_revenues": {
+                    "type": "string"
+                },
+                "other_long_term_investment_earnings": {
+                    "type": "string"
+                },
+                "other_operating_expenses": {
+                    "type": "string"
+                },
+                "other_taxes": {
+                    "type": "string"
+                },
+                "provision_for_income_taxes": {
+                    "type": "string"
+                },
+                "statement_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.Member": {
+            "type": "object",
+            "properties": {
+                "at_legal_entity_registration_number": {
+                    "type": "string"
+                },
+                "birth_date": {
+                    "type": "string"
+                },
+                "date_from": {
+                    "type": "string"
+                },
+                "entity_type": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "last_modified_at": {
+                    "type": "string"
+                },
+                "latvian_identity_number_masked": {
+                    "type": "string"
+                },
+                "legal_entity_registration_number": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "number_of_shares": {
+                    "type": "string"
+                },
+                "registered_on": {
+                    "type": "string"
+                },
+                "share_currency": {
+                    "type": "string"
+                },
+                "share_nominal_value": {
+                    "type": "string"
+                },
+                "uri": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.Register": {
+            "type": "object",
+            "properties": {
+                "address": {
+                    "type": "string"
+                },
+                "addressid": {
+                    "type": "string"
+                },
+                "atvk": {
+                    "type": "string"
+                },
+                "city": {
+                    "type": "string"
+                },
+                "closed": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "index_company": {
+                    "type": "string"
+                },
+                "latitude": {
+                    "type": "number"
+                },
+                "longitude": {
+                    "type": "number"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "name_after_quotes": {
+                    "type": "string"
+                },
+                "name_before_quotes": {
+                    "type": "string"
+                },
+                "name_in_quotes": {
+                    "type": "string"
+                },
+                "regcode": {
+                    "type": "string"
+                },
+                "region": {
+                    "type": "string"
+                },
+                "registered": {
+                    "type": "string"
+                },
+                "regtype": {
+                    "type": "string"
+                },
+                "regtype_text": {
+                    "type": "string"
+                },
+                "reregistration_term": {
+                    "type": "string"
+                },
+                "sepa": {
+                    "type": "string"
+                },
+                "terminated": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                },
+                "type_text": {
+                    "type": "string"
+                },
+                "without_quotes": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,1449 @@
+basePath: /api/v1
+definitions:
+  handlers.HTTPError:
+    properties:
+      error:
+        type: string
+    type: object
+  models.BalanceSheet:
+    properties:
+      accounts_receivable:
+        type: string
+      cash:
+        type: string
+      current_liabilities:
+        type: string
+      equity:
+        type: string
+      file_id:
+        type: string
+      fixed_assets:
+        type: string
+      future_housing_repairs_payments:
+        type: string
+      id:
+        type: integer
+      intangible_assets:
+        type: string
+      inventories:
+        type: string
+      investments:
+        type: string
+      marketable_securities:
+        type: string
+      non_current_liabilities:
+        type: string
+      provisions:
+        type: string
+      statement_id:
+        type: string
+      total_assets:
+        type: string
+      total_current_assets:
+        type: string
+      total_equities:
+        type: string
+      total_non_current_assets:
+        type: string
+    type: object
+  models.BeneficialOwner:
+    properties:
+      birth_date:
+        type: string
+      forename:
+        type: string
+      id:
+        type: integer
+      last_modified_at:
+        type: string
+      latvian_identity_number_masked:
+        type: string
+      legal_entity_registration_number:
+        type: string
+      nationality:
+        type: string
+      registered_on:
+        type: string
+      residence:
+        type: string
+      surname:
+        type: string
+    type: object
+  models.CashFlowStatement:
+    properties:
+      at_beginning_of_year:
+        type: string
+      at_end_of_year:
+        type: string
+      cff_dividends_paid:
+        type: string
+      cff_loans_received:
+        type: string
+      cff_net_financing_cash_flow:
+        type: string
+      cff_proceeds_from_stocks_bonds_issuance_or_contributed_capital:
+        type: string
+      cff_repayments_of_lease_obligations:
+        type: string
+      cff_repayments_of_loans_made:
+        type: string
+      cff_subsidies_grants_donations_received:
+        type: string
+      cfi_acquisition_of_fixed_assets_intangible_assets:
+        type: string
+      cfi_acquisition_of_stocks_shares:
+        type: string
+      cfi_dividends_received:
+        type: string
+      cfi_interest_received:
+        type: string
+      cfi_loans_made:
+        type: string
+      cfi_net_investing_cash_flow:
+        type: string
+      cfi_repayments_of_loans_received:
+        type: string
+      cfi_sale_proceeds_from_fixed_assets_intangible_assets:
+        type: string
+      cfi_sale_proceeds_from_stocks_shares:
+        type: string
+      cfo_dm_cash_paid_to_suppliers_employees:
+        type: string
+      cfo_dm_cash_received_from_customers:
+        type: string
+      cfo_dm_extra_items_cash_flow:
+        type: string
+      cfo_dm_income_taxes_paid:
+        type: string
+      cfo_dm_interest_paid:
+        type: string
+      cfo_dm_net_operating_cash_flow:
+        type: string
+      cfo_dm_operating_cash_flow:
+        type: string
+      cfo_dm_other_cash_received_paid:
+        type: string
+      cfo_im_extra_items_cash_flow:
+        type: string
+      cfo_im_income_before_changes_in_working_capital:
+        type: string
+      cfo_im_income_before_income_taxes:
+        type: string
+      cfo_im_income_taxes_paid:
+        type: string
+      cfo_im_interest_paid:
+        type: string
+      cfo_im_net_operating_cash_flow:
+        type: string
+      cfo_im_operating_cash_flow:
+        type: string
+      effect_of_exchange_rate_change:
+        type: string
+      file_id:
+        type: string
+      id:
+        type: integer
+      net_increase:
+        type: string
+      statement_id:
+        type: string
+    type: object
+  models.CompanySearchResult:
+    properties:
+      beneficial_owners:
+        items:
+          $ref: '#/definitions/models.BeneficialOwner'
+        type: array
+      financial_reports:
+        items:
+          $ref: '#/definitions/models.FinancialReportDetail'
+        type: array
+      members:
+        items:
+          $ref: '#/definitions/models.Member'
+        type: array
+      register_info:
+        allOf:
+        - $ref: '#/definitions/models.Register'
+        description: Сделаем основным, не опциональным
+    type: object
+  models.FinancialReportDetail:
+    properties:
+      balance_sheet:
+        $ref: '#/definitions/models.BalanceSheet'
+      cash_flow_statement:
+        $ref: '#/definitions/models.CashFlowStatement'
+      financial_statement_info:
+        $ref: '#/definitions/models.FinancialStatement'
+      income_statement:
+        $ref: '#/definitions/models.IncomeStatement'
+    type: object
+  models.FinancialStatement:
+    properties:
+      created_at:
+        type: string
+      currency:
+        type: string
+      employees:
+        type: string
+      file_id:
+        type: string
+      id:
+        type: integer
+      legal_entity_registration_number:
+        type: string
+      rounded_to_nearest:
+        type: string
+      source_schema:
+        type: string
+      source_type:
+        type: string
+      year:
+        type: string
+      year_ended_on:
+        type: string
+      year_started_on:
+        type: string
+    type: object
+  models.IncomeStatement:
+    properties:
+      by_function_administrative_expenses:
+        type: string
+      by_function_cost_of_goods_sold:
+        type: string
+      by_function_gross_profit:
+        type: string
+      by_function_other_operating_revenues:
+        type: string
+      by_function_selling_expenses:
+        type: string
+      by_nature_depreciation_expenses:
+        type: string
+      by_nature_inventory_change:
+        type: string
+      by_nature_labour_expenses:
+        type: string
+      by_nature_long_term_investment_expenses:
+        type: string
+      by_nature_material_expenses:
+        type: string
+      by_nature_other_operating_revenues:
+        type: string
+      equity_investment_earnings:
+        type: string
+      extra_dividends:
+        type: string
+      extra_expenses:
+        type: string
+      extra_revenues:
+        type: string
+      file_id:
+        type: string
+      id:
+        type: integer
+      income_after_income_taxes:
+        type: string
+      income_before_income_taxes:
+        type: string
+      interest_expenses:
+        type: string
+      investment_fair_value_adjustments:
+        type: string
+      net_income:
+        type: string
+      net_turnover:
+        type: string
+      other_interest_revenues:
+        type: string
+      other_long_term_investment_earnings:
+        type: string
+      other_operating_expenses:
+        type: string
+      other_taxes:
+        type: string
+      provision_for_income_taxes:
+        type: string
+      statement_id:
+        type: string
+    type: object
+  models.Member:
+    properties:
+      at_legal_entity_registration_number:
+        type: string
+      birth_date:
+        type: string
+      date_from:
+        type: string
+      entity_type:
+        type: string
+      id:
+        type: integer
+      last_modified_at:
+        type: string
+      latvian_identity_number_masked:
+        type: string
+      legal_entity_registration_number:
+        type: string
+      name:
+        type: string
+      number_of_shares:
+        type: string
+      registered_on:
+        type: string
+      share_currency:
+        type: string
+      share_nominal_value:
+        type: string
+      uri:
+        type: string
+    type: object
+  models.Register:
+    properties:
+      address:
+        type: string
+      addressid:
+        type: string
+      atvk:
+        type: string
+      city:
+        type: string
+      closed:
+        type: string
+      id:
+        type: integer
+      index_company:
+        type: string
+      latitude:
+        type: number
+      longitude:
+        type: number
+      name:
+        type: string
+      name_after_quotes:
+        type: string
+      name_before_quotes:
+        type: string
+      name_in_quotes:
+        type: string
+      regcode:
+        type: string
+      region:
+        type: string
+      registered:
+        type: string
+      regtype:
+        type: string
+      regtype_text:
+        type: string
+      reregistration_term:
+        type: string
+      sepa:
+        type: string
+      terminated:
+        type: string
+      type:
+        type: string
+      type_text:
+        type: string
+      without_quotes:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: This is a sample server for managing data based on the provided schema.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: Your API Title
+  version: "1.0"
+paths:
+  /balance-sheets:
+    get:
+      description: Retrieve a list of all balance sheet records
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.BalanceSheet'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.HTTPError'
+      summary: Get all balance sheet entries
+      tags:
+      - balance-sheets
+    post:
+      consumes:
+      - application/json
+      description: Add a new balance sheet record to the database
+      parameters:
+      - description: Balance Sheet data to create
+        in: body
+        name: balanceSheet
+        required: true
+        schema:
+          $ref: '#/definitions/models.BalanceSheet'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.BalanceSheet'
+        "400":
+          description: Bad Request - Invalid input data
+          schema:
+            $ref: '#/definitions/handlers.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.HTTPError'
+      summary: Create a new balance sheet entry
+      tags:
+      - balance-sheets
+  /balance-sheets/{id}:
+    delete:
+      description: Remove a balance sheet record from the database using its ID
+      parameters:
+      - description: Balance Sheet ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success message
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request - Invalid ID format
+          schema:
+            $ref: '#/definitions/handlers.HTTPError'
+        "404":
+          description: Not Found - Balance Sheet not found
+          schema:
+            $ref: '#/definitions/handlers.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.HTTPError'
+      summary: Delete a balance sheet entry by ID
+      tags:
+      - balance-sheets
+    get:
+      description: Retrieve details of a specific balance sheet record using its ID
+      parameters:
+      - description: Balance Sheet ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.BalanceSheet'
+        "400":
+          description: Bad Request - Invalid ID format
+          schema:
+            $ref: '#/definitions/handlers.HTTPError'
+        "404":
+          description: Not Found - Balance Sheet not found
+          schema:
+            $ref: '#/definitions/handlers.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.HTTPError'
+      summary: Get a single balance sheet entry by ID
+      tags:
+      - balance-sheets
+    put:
+      consumes:
+      - application/json
+      description: Modify the details of an existing balance sheet record by ID
+      parameters:
+      - description: Balance Sheet ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Balance Sheet data to update
+        in: body
+        name: balanceSheet
+        required: true
+        schema:
+          $ref: '#/definitions/models.BalanceSheet'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.BalanceSheet'
+        "400":
+          description: Bad Request - Invalid ID format or input data
+          schema:
+            $ref: '#/definitions/handlers.HTTPError'
+        "404":
+          description: Not Found - Balance Sheet not found
+          schema:
+            $ref: '#/definitions/handlers.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.HTTPError'
+      summary: Update an existing balance sheet entry
+      tags:
+      - balance-sheets
+  /beneficial-owners:
+    get:
+      description: Retrieve a list of all beneficial owner records
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.BeneficialOwner'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.HTTPError'
+      summary: Get all beneficial owner entries
+      tags:
+      - beneficial-owners
+    post:
+      consumes:
+      - application/json
+      description: Add a new beneficial owner record to the database
+      parameters:
+      - description: Beneficial Owner data to create
+        in: body
+        name: beneficialOwner
+        required: true
+        schema:
+          $ref: '#/definitions/models.BeneficialOwner'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.BeneficialOwner'
+        "400":
+          description: Bad Request - Invalid input data
+          schema:
+            $ref: '#/definitions/handlers.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.HTTPError'
+      summary: Create a new beneficial owner entry
+      tags:
+      - beneficial-owners
+  /beneficial-owners/{id}:
+    delete:
+      description: Remove a beneficial owner record from the database using its ID
+      parameters:
+      - description: Beneficial Owner ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success message
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request - Invalid ID format
+          schema:
+            $ref: '#/definitions/handlers.HTTPError'
+        "404":
+          description: Not Found - Beneficial Owner not found
+          schema:
+            $ref: '#/definitions/handlers.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.HTTPError'
+      summary: Delete a beneficial owner entry by ID
+      tags:
+      - beneficial-owners
+    get:
+      description: Retrieve details of a specific beneficial owner record using its
+        ID
+      parameters:
+      - description: Beneficial Owner ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.BeneficialOwner'
+        "400":
+          description: Bad Request - Invalid ID format
+          schema:
+            $ref: '#/definitions/handlers.HTTPError'
+        "404":
+          description: Not Found - Beneficial Owner not found
+          schema:
+            $ref: '#/definitions/handlers.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.HTTPError'
+      summary: Get a single beneficial owner entry by ID
+      tags:
+      - beneficial-owners
+    put:
+      consumes:
+      - application/json
+      description: Modify the details of an existing beneficial owner record by ID
+      parameters:
+      - description: Beneficial Owner ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Beneficial Owner data to update
+        in: body
+        name: beneficialOwner
+        required: true
+        schema:
+          $ref: '#/definitions/models.BeneficialOwner'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.BeneficialOwner'
+        "400":
+          description: Bad Request - Invalid ID format or input data
+          schema:
+            $ref: '#/definitions/handlers.HTTPError'
+        "404":
+          description: Not Found - Beneficial Owner not found
+          schema:
+            $ref: '#/definitions/handlers.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.HTTPError'
+      summary: Update an existing beneficial owner entry
+      tags:
+      - beneficial-owners
+  /cash-flow-statements:
+    get:
+      description: Retrieve a list of all cash flow statement records
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.CashFlowStatement'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.HTTPError'
+      summary: Get all cash flow statement entries
+      tags:
+      - cash-flow-statements
+    post:
+      consumes:
+      - application/json
+      description: Add a new cash flow statement record to the database
+      parameters:
+      - description: Cash Flow Statement data to create
+        in: body
+        name: cashFlowStatement
+        required: true
+        schema:
+          $ref: '#/definitions/models.CashFlowStatement'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.CashFlowStatement'
+        "400":
+          description: Bad Request - Invalid input data
+          schema:
+            $ref: '#/definitions/handlers.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.HTTPError'
+      summary: Create a new cash flow statement entry
+      tags:
+      - cash-flow-statements
+  /cash-flow-statements/{id}:
+    delete:
+      description: Remove a cash flow statement record from the database using its
+        ID
+      parameters:
+      - description: Cash Flow Statement ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success message
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request - Invalid ID format
+          schema:
+            $ref: '#/definitions/handlers.HTTPError'
+        "404":
+          description: Not Found - Cash Flow Statement not found
+          schema:
+            $ref: '#/definitions/handlers.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.HTTPError'
+      summary: Delete a cash flow statement entry by ID
+      tags:
+      - cash-flow-statements
+    get:
+      description: Retrieve details of a specific cash flow statement record using
+        its ID
+      parameters:
+      - description: Cash Flow Statement ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.CashFlowStatement'
+        "400":
+          description: Bad Request - Invalid ID format
+          schema:
+            $ref: '#/definitions/handlers.HTTPError'
+        "404":
+          description: Not Found - Cash Flow Statement not found
+          schema:
+            $ref: '#/definitions/handlers.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.HTTPError'
+      summary: Get a single cash flow statement entry by ID
+      tags:
+      - cash-flow-statements
+    put:
+      consumes:
+      - application/json
+      description: Modify the details of an existing cash flow statement record by
+        ID
+      parameters:
+      - description: Cash Flow Statement ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Cash Flow Statement data to update
+        in: body
+        name: cashFlowStatement
+        required: true
+        schema:
+          $ref: '#/definitions/models.CashFlowStatement'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.CashFlowStatement'
+        "400":
+          description: Bad Request - Invalid ID format or input data
+          schema:
+            $ref: '#/definitions/handlers.HTTPError'
+        "404":
+          description: Not Found - Cash Flow Statement not found
+          schema:
+            $ref: '#/definitions/handlers.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.HTTPError'
+      summary: Update an existing cash flow statement entry
+      tags:
+      - cash-flow-statements
+  /financial-statements:
+    get:
+      description: Retrieve a list of all financial statement records
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.FinancialStatement'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.HTTPError'
+      summary: Get all financial statement entries
+      tags:
+      - financial-statements
+    post:
+      consumes:
+      - application/json
+      description: Add a new financial statement record to the database
+      parameters:
+      - description: Financial Statement data to create
+        in: body
+        name: financialStatement
+        required: true
+        schema:
+          $ref: '#/definitions/models.FinancialStatement'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.FinancialStatement'
+        "400":
+          description: Bad Request - Invalid input data
+          schema:
+            $ref: '#/definitions/handlers.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.HTTPError'
+      summary: Create a new financial statement entry
+      tags:
+      - financial-statements
+  /financial-statements/{id}:
+    delete:
+      description: Remove a financial statement record from the database using its
+        ID
+      parameters:
+      - description: Financial Statement ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success message
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request - Invalid ID format
+          schema:
+            $ref: '#/definitions/handlers.HTTPError'
+        "404":
+          description: Not Found - Financial Statement not found
+          schema:
+            $ref: '#/definitions/handlers.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.HTTPError'
+      summary: Delete a financial statement entry by ID
+      tags:
+      - financial-statements
+    get:
+      description: Retrieve details of a specific financial statement record using
+        its ID
+      parameters:
+      - description: Financial Statement ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.FinancialStatement'
+        "400":
+          description: Bad Request - Invalid ID format
+          schema:
+            $ref: '#/definitions/handlers.HTTPError'
+        "404":
+          description: Not Found - Financial Statement not found
+          schema:
+            $ref: '#/definitions/handlers.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.HTTPError'
+      summary: Get a single financial statement entry by ID
+      tags:
+      - financial-statements
+    put:
+      consumes:
+      - application/json
+      description: Modify the details of an existing financial statement record by
+        ID
+      parameters:
+      - description: Financial Statement ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Financial Statement data to update
+        in: body
+        name: financialStatement
+        required: true
+        schema:
+          $ref: '#/definitions/models.FinancialStatement'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.FinancialStatement'
+        "400":
+          description: Bad Request - Invalid ID format or input data
+          schema:
+            $ref: '#/definitions/handlers.HTTPError'
+        "404":
+          description: Not Found - Financial Statement not found
+          schema:
+            $ref: '#/definitions/handlers.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.HTTPError'
+      summary: Update an existing financial statement entry
+      tags:
+      - financial-statements
+  /income-statements:
+    get:
+      description: Retrieve a list of all income statement records
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.IncomeStatement'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.HTTPError'
+      summary: Get all income statement entries
+      tags:
+      - income-statements
+    post:
+      consumes:
+      - application/json
+      description: Add a new income statement record to the database
+      parameters:
+      - description: Income Statement data to create
+        in: body
+        name: incomeStatement
+        required: true
+        schema:
+          $ref: '#/definitions/models.IncomeStatement'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.IncomeStatement'
+        "400":
+          description: Bad Request - Invalid input data
+          schema:
+            $ref: '#/definitions/handlers.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.HTTPError'
+      summary: Create a new income statement entry
+      tags:
+      - income-statements
+  /income-statements/{id}:
+    delete:
+      description: Remove an income statement record from the database using its ID
+      parameters:
+      - description: Income Statement ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success message
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request - Invalid ID format
+          schema:
+            $ref: '#/definitions/handlers.HTTPError'
+        "404":
+          description: Not Found - Income Statement not found
+          schema:
+            $ref: '#/definitions/handlers.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.HTTPError'
+      summary: Delete an income statement entry by ID
+      tags:
+      - income-statements
+    get:
+      description: Retrieve details of a specific income statement record using its
+        ID
+      parameters:
+      - description: Income Statement ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.IncomeStatement'
+        "400":
+          description: Bad Request - Invalid ID format
+          schema:
+            $ref: '#/definitions/handlers.HTTPError'
+        "404":
+          description: Not Found - Income Statement not found
+          schema:
+            $ref: '#/definitions/handlers.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.HTTPError'
+      summary: Get a single income statement entry by ID
+      tags:
+      - income-statements
+    put:
+      consumes:
+      - application/json
+      description: Modify the details of an existing income statement record by ID
+      parameters:
+      - description: Income Statement ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Income Statement data to update
+        in: body
+        name: incomeStatement
+        required: true
+        schema:
+          $ref: '#/definitions/models.IncomeStatement'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.IncomeStatement'
+        "400":
+          description: Bad Request - Invalid ID format or input data
+          schema:
+            $ref: '#/definitions/handlers.HTTPError'
+        "404":
+          description: Not Found - Income Statement not found
+          schema:
+            $ref: '#/definitions/handlers.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.HTTPError'
+      summary: Update an existing income statement entry
+      tags:
+      - income-statements
+  /members:
+    get:
+      description: Retrieve a list of all member records
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Member'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.HTTPError'
+      summary: Get all member entries
+      tags:
+      - members
+    post:
+      consumes:
+      - application/json
+      description: Add a new member record to the database
+      parameters:
+      - description: Member data to create
+        in: body
+        name: member
+        required: true
+        schema:
+          $ref: '#/definitions/models.Member'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Member'
+        "400":
+          description: Bad Request - Invalid input data
+          schema:
+            $ref: '#/definitions/handlers.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.HTTPError'
+      summary: Create a new member entry
+      tags:
+      - members
+  /members/{id}:
+    delete:
+      description: Remove a member record from the database using its ID
+      parameters:
+      - description: Member ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success message
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request - Invalid ID format
+          schema:
+            $ref: '#/definitions/handlers.HTTPError'
+        "404":
+          description: Not Found - Member not found
+          schema:
+            $ref: '#/definitions/handlers.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.HTTPError'
+      summary: Delete a member entry by ID
+      tags:
+      - members
+    get:
+      description: Retrieve details of a specific member record using its ID
+      parameters:
+      - description: Member ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Member'
+        "400":
+          description: Bad Request - Invalid ID format
+          schema:
+            $ref: '#/definitions/handlers.HTTPError'
+        "404":
+          description: Not Found - Member not found
+          schema:
+            $ref: '#/definitions/handlers.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.HTTPError'
+      summary: Get a single member entry by ID
+      tags:
+      - members
+    put:
+      consumes:
+      - application/json
+      description: Modify the details of an existing member record by ID
+      parameters:
+      - description: Member ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Member data to update
+        in: body
+        name: member
+        required: true
+        schema:
+          $ref: '#/definitions/models.Member'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Member'
+        "400":
+          description: Bad Request - Invalid ID format or input data
+          schema:
+            $ref: '#/definitions/handlers.HTTPError'
+        "404":
+          description: Not Found - Member not found
+          schema:
+            $ref: '#/definitions/handlers.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.HTTPError'
+      summary: Update an existing member entry
+      tags:
+      - members
+  /registers:
+    get:
+      description: Retrieve a list of all register records
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Register'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.HTTPError'
+      summary: Get all register entries
+      tags:
+      - registers
+    post:
+      consumes:
+      - application/json
+      description: Add a new register record to the database
+      parameters:
+      - description: Register data to create
+        in: body
+        name: register
+        required: true
+        schema:
+          $ref: '#/definitions/models.Register'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Register'
+        "400":
+          description: Bad Request - Invalid input data
+          schema:
+            $ref: '#/definitions/handlers.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.HTTPError'
+      summary: Create a new register entry
+      tags:
+      - registers
+  /registers/{id}:
+    delete:
+      description: Remove a register record from the database using its ID
+      parameters:
+      - description: Register ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success message
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request - Invalid ID format
+          schema:
+            $ref: '#/definitions/handlers.HTTPError'
+        "404":
+          description: Not Found - Register not found
+          schema:
+            $ref: '#/definitions/handlers.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.HTTPError'
+      summary: Delete a register entry by ID
+      tags:
+      - registers
+    get:
+      description: Retrieve details of a specific register record using its ID
+      parameters:
+      - description: Register ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Register'
+        "400":
+          description: Bad Request - Invalid ID format
+          schema:
+            $ref: '#/definitions/handlers.HTTPError'
+        "404":
+          description: Not Found - Register not found
+          schema:
+            $ref: '#/definitions/handlers.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.HTTPError'
+      summary: Get a single register entry by ID
+      tags:
+      - registers
+    put:
+      consumes:
+      - application/json
+      description: Modify the details of an existing register record by ID
+      parameters:
+      - description: Register ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Register data to update
+        in: body
+        name: register
+        required: true
+        schema:
+          $ref: '#/definitions/models.Register'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Register'
+        "400":
+          description: Bad Request - Invalid ID format or input data
+          schema:
+            $ref: '#/definitions/handlers.HTTPError'
+        "404":
+          description: Not Found - Register not found
+          schema:
+            $ref: '#/definitions/handlers.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.HTTPError'
+      summary: Update an existing register entry
+      tags:
+      - registers
+  /search/detailed:
+    get:
+      description: Ищет компании по части названия, Regcode, SEPA, имени бенефициара
+        или участника (member). Возвращает список компаний с полной информацией.
+      parameters:
+      - description: Поисковый запрос (название, Regcode, SEPA, имя)
+        in: query
+        name: q
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Список найденных компаний с детальной информацией
+          schema:
+            items:
+              $ref: '#/definitions/models.CompanySearchResult'
+            type: array
+        "400":
+          description: Неверный запрос - отсутствует параметр 'q'
+          schema:
+            $ref: '#/definitions/handlers.HTTPError'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/handlers.HTTPError'
+      summary: Расширенный поиск компаний
+      tags:
+      - search
+schemes:
+- http
+- https
+swagger: "2.0"
