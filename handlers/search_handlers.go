@@ -10,34 +10,42 @@ import (
 	"net/http"
 	"strings"
 	"sync"
+	"time" // Добавим для логов
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
 // Вспомогательная структура только для получения ID из поиска
 type RegCodeResult struct {
-	Regcode                       *string
-	LegalEntityRegistrationNumber *string // Добавим поле для owner/member
+	Regcode                       *string `gorm:"column:regcode"` // Добавим явное указание колонки (на всякий случай)
+	LegalEntityRegistrationNumber *string `gorm:"column:legal_entity_registration_number"`
 }
 
-// DetailedSearch godoc
-// @Summary Расширенный поиск компаний
-// @Description Ищет компании по части названия, Regcode, SEPA, имени бенефициара или участника (member). Возвращает список компаний с полной информацией.
-// @Tags search
-// @Produce json
-// @Param q query string true "Поисковый запрос (название, Regcode, SEPA, имя)"
-// @Success 200 {array} models.CompanySearchResult "Список найденных компаний с детальной информацией"
-// @Failure 400 {object} HTTPError "Неверный запрос - отсутствует параметр 'q'"
-// @Failure 500 {object} HTTPError "Внутренняя ошибка сервера"
-// @Router /search/detailed [get]
+// DetailedSearch ... (остальные godoc комментарии) ...
 func DetailedSearch(c *gin.Context) {
+	startTime := time.Now()
+	log.Println("DetailedSearch: Начало обработки запроса")
+
 	searchTerm := c.Query("q")
+	log.Printf("DetailedSearch: Получен поисковый запрос q='%s'", searchTerm)
+
 	if strings.TrimSpace(searchTerm) == "" {
 		c.JSON(http.StatusBadRequest, NewHTTPError(errors.New("поисковый параметр 'q' обязателен")))
 		return
 	}
-	searchTermLike := "%" + searchTerm + "%"
+
+	// Преобразуем поисковый запрос в нижний регистр для поиска без учета регистра
+	searchTermLower := strings.ToLower(searchTerm)
+	searchTermLikeLower := "%" + searchTermLower + "%"
+	log.Printf("DetailedSearch: Поиск будет регистронезависимым. Шаблон LIKE: '%s'", searchTermLikeLower)
+
+	// !!! --- ВКЛЮЧАЕМ DEBUG GORM --- !!!
+	// Создаем сессию с Debug() для логирования SQL
+	debugDB := db.DB.Session(&gorm.Session{Logger: db.DB.Logger.LogMode(logger.Info)}) // <--- ИЗМЕНИТЬ log.Linfo на logger.Info // Используем стандартный логгер GORM
+	// Если вы используете кастомный логгер для GORM, настройте его уровень на Info или Debug
+	log.Println("DetailedSearch: GORM Debug режим включен для этого запроса.")
 
 	foundRegCodesMap := make(map[string]bool) // Используем map для уникальности Regcode
 
@@ -45,112 +53,173 @@ func DetailedSearch(c *gin.Context) {
 	var mu sync.Mutex        // Для безопасной записи в map из горутин
 	var searchErrors []error // Для сбора ошибок из горутин
 
+	log.Println("DetailedSearch: Этап 1: Запуск параллельного поиска совпадающих ID")
+
 	// --- Этап 1: Поиск совпадающих Regcode/LegalEntityRegistrationNumber ---
 
-	// Поиск в 'register'
+	// Поиск в 'register' (с LOWER и Debug)
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
 		var registerMatches []RegCodeResult
-		err := db.DB.Model(&models.Register{}).
-			Select("regcode"). // Выбираем только нужное поле
-			Where("regcode = ?", searchTerm).
-			Or("sepa = ?", searchTerm).
-			Or("name LIKE ?", searchTermLike).
-			Or("name_in_quotes LIKE ?", searchTermLike).
-			Or("without_quotes LIKE ?", searchTermLike).
-			Find(&registerMatches).Error
-		if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-			mu.Lock()
-			searchErrors = append(searchErrors, fmt.Errorf("ошибка поиска в register: %w", err))
-			mu.Unlock()
-			return
+		log.Println("DetailedSearch: Goroutine(register): Начало поиска...")
+		// Используем debugDB и LOWER() для регистронезависимого поиска
+		err := debugDB.Model(&models.Register{}). // Используем debugDB
+								Select("regcode").
+								Where("LOWER(regcode) = ?", searchTermLower). // Поиск по regcode тоже сделаем регистронезависимым
+								Or("LOWER(sepa) = ?", searchTermLower).       // И по sepa
+								Or("LOWER(name) LIKE ?", searchTermLikeLower).
+								Or("LOWER(name_in_quotes) LIKE ?", searchTermLikeLower).
+								Or("LOWER(without_quotes) LIKE ?", searchTermLikeLower).
+								Find(&registerMatches).Error
+
+		// --- ЛОГИРОВАНИЕ СРАЗУ ПОСЛЕ ЗАПРОСА ---
+		if err != nil {
+			log.Printf("DetailedSearch: Goroutine(register): Ошибка выполнения запроса: %v", err)
+			// Не выходим сразу при gorm.ErrRecordNotFound, просто логируем
+			if !errors.Is(err, gorm.ErrRecordNotFound) {
+				mu.Lock()
+				searchErrors = append(searchErrors, fmt.Errorf("ошибка поиска в register: %w", err))
+				mu.Unlock()
+			}
+			// Логируем количество найденных даже при ошибке (если Find что-то вернул до ошибки)
+			log.Printf("DetailedSearch: Goroutine(register): Найдено совпадений (до обработки): %d", len(registerMatches))
+		} else {
+			log.Printf("DetailedSearch: Goroutine(register): Запрос успешно выполнен. Найдено совпадений (до обработки): %d", len(registerMatches))
 		}
+		// --- КОНЕЦ ЛОГИРОВАНИЯ ---
+
+		addedCount := 0
 		mu.Lock()
-		for _, match := range registerMatches {
+		for i, match := range registerMatches {
+			// Дополнительное логирование самих найденных значений
+			log.Printf("DetailedSearch: Goroutine(register): Обработка совпадения %d: Regcode=%v", i+1, match.Regcode)
 			if match.Regcode != nil && *match.Regcode != "" {
-				foundRegCodesMap[*match.Regcode] = true
+				if !foundRegCodesMap[*match.Regcode] {
+					foundRegCodesMap[*match.Regcode] = true
+					addedCount++
+				}
 			}
 		}
 		mu.Unlock()
+		log.Printf("DetailedSearch: Goroutine(register): Завершение обработки. Добавлено новых уникальных Regcode: %d", addedCount)
 	}()
 
-	// Поиск в 'beneficial_owner'
+	// Поиск в 'beneficial_owner' (с LOWER и Debug)
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
 		var ownerMatches []RegCodeResult
-		err := db.DB.Model(&models.BeneficialOwner{}).
-			Select("legal_entity_registration_number"). // Выбираем только нужное поле
-			Where("forename LIKE ?", searchTermLike).
-			Or("surname LIKE ?", searchTermLike).
-			Find(&ownerMatches).Error
-		if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-			mu.Lock()
-			searchErrors = append(searchErrors, fmt.Errorf("ошибка поиска в beneficial_owner: %w", err))
-			mu.Unlock()
-			return
+		log.Println("DetailedSearch: Goroutine(beneficial_owner): Начало поиска...")
+		// Используем debugDB и LOWER()
+		err := debugDB.Model(&models.BeneficialOwner{}). // Используем debugDB
+									Select("legal_entity_registration_number").
+									Where("LOWER(forename) LIKE ?", searchTermLikeLower). // Ищем регистронезависимо
+									Or("LOWER(surname) LIKE ?", searchTermLikeLower).
+									Find(&ownerMatches).Error
+
+		// --- ЛОГИРОВАНИЕ СРАЗУ ПОСЛЕ ЗАПРОСА ---
+		if err != nil {
+			log.Printf("DetailedSearch: Goroutine(beneficial_owner): Ошибка выполнения запроса: %v", err)
+			if !errors.Is(err, gorm.ErrRecordNotFound) {
+				mu.Lock()
+				searchErrors = append(searchErrors, fmt.Errorf("ошибка поиска в beneficial_owner: %w", err))
+				mu.Unlock()
+			}
+			log.Printf("DetailedSearch: Goroutine(beneficial_owner): Найдено совпадений (до обработки): %d", len(ownerMatches))
+		} else {
+			log.Printf("DetailedSearch: Goroutine(beneficial_owner): Запрос успешно выполнен. Найдено совпадений (до обработки): %d", len(ownerMatches))
 		}
+		// --- КОНЕЦ ЛОГИРОВАНИЯ ---
+
+		addedCount := 0
 		mu.Lock()
-		for _, match := range ownerMatches {
-			// Используем поле LegalEntityRegistrationNumber из структуры RegCodeResult
+		for i, match := range ownerMatches {
+			log.Printf("DetailedSearch: Goroutine(beneficial_owner): Обработка совпадения %d: LegalEntityRegistrationNumber=%v", i+1, match.LegalEntityRegistrationNumber)
 			if match.LegalEntityRegistrationNumber != nil && *match.LegalEntityRegistrationNumber != "" {
-				foundRegCodesMap[*match.LegalEntityRegistrationNumber] = true
+				if !foundRegCodesMap[*match.LegalEntityRegistrationNumber] {
+					foundRegCodesMap[*match.LegalEntityRegistrationNumber] = true
+					addedCount++
+				}
 			}
 		}
 		mu.Unlock()
+		log.Printf("DetailedSearch: Goroutine(beneficial_owner): Завершение обработки. Добавлено новых уникальных ID: %d", addedCount)
 	}()
 
-	// Поиск в 'member'
+	// Поиск в 'member' (с LOWER и Debug)
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
 		var memberMatches []RegCodeResult
-		// Предполагаем, что ищем по основному номеру компании, к которой относится участник
-		err := db.DB.Model(&models.Member{}).
-			Select("legal_entity_registration_number"). // Выбираем только нужное поле
-			Where("name LIKE ?", searchTermLike).
-			// Возможно, нужно искать и по at_legal_entity_registration_number, если это ID компании, где он участник?
-			// Or("at_legal_entity_registration_number = ?", searchTerm). // Если нужно искать и по этому полю
+		log.Println("DetailedSearch: Goroutine(member): Начало поиска...")
+		// Используем debugDB и LOWER()
+		err := debugDB.Model(&models.Member{}). // Используем debugDB
+							Select("legal_entity_registration_number").
+							Where("LOWER(name) LIKE ?", searchTermLikeLower). // Ищем регистронезависимо
+			// Or("at_legal_entity_registration_number = ?", searchTerm). // Если нужно - тоже добавить LOWER()
 			Find(&memberMatches).Error
-		if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-			mu.Lock()
-			searchErrors = append(searchErrors, fmt.Errorf("ошибка поиска в member: %w", err))
-			mu.Unlock()
-			return
+
+		// --- ЛОГИРОВАНИЕ СРАЗУ ПОСЛЕ ЗАПРОСА ---
+		if err != nil {
+			log.Printf("DetailedSearch: Goroutine(member): Ошибка выполнения запроса: %v", err)
+			if !errors.Is(err, gorm.ErrRecordNotFound) {
+				mu.Lock()
+				searchErrors = append(searchErrors, fmt.Errorf("ошибка поиска в member: %w", err))
+				mu.Unlock()
+			}
+			log.Printf("DetailedSearch: Goroutine(member): Найдено совпадений (до обработки): %d", len(memberMatches))
+		} else {
+			log.Printf("DetailedSearch: Goroutine(member): Запрос успешно выполнен. Найдено совпадений (до обработки): %d", len(memberMatches))
 		}
+		// --- КОНЕЦ ЛОГИРОВАНИЯ ---
+
+		addedCount := 0
 		mu.Lock()
-		for _, match := range memberMatches {
-			// Используем поле LegalEntityRegistrationNumber из структуры RegCodeResult
+		for i, match := range memberMatches {
+			log.Printf("DetailedSearch: Goroutine(member): Обработка совпадения %d: LegalEntityRegistrationNumber=%v", i+1, match.LegalEntityRegistrationNumber)
 			if match.LegalEntityRegistrationNumber != nil && *match.LegalEntityRegistrationNumber != "" {
-				foundRegCodesMap[*match.LegalEntityRegistrationNumber] = true
+				if !foundRegCodesMap[*match.LegalEntityRegistrationNumber] {
+					foundRegCodesMap[*match.LegalEntityRegistrationNumber] = true
+					addedCount++
+				}
 			}
 		}
 		mu.Unlock()
+		log.Printf("DetailedSearch: Goroutine(member): Завершение обработки. Добавлено новых уникальных ID: %d", addedCount)
 	}()
 
+	log.Println("DetailedSearch: Этап 1: Ожидание завершения всех горутин поиска ID...")
 	wg.Wait() // Дожидаемся завершения всех поисков ID
+	log.Println("DetailedSearch: Этап 1: Все горутины поиска ID завершены.")
 
 	// Проверяем ошибки поиска ID
 	if len(searchErrors) > 0 {
-		// Можно вернуть первую ошибку или скомбинировать их
+		log.Printf("DetailedSearch: Ошибка: Обнаружены ошибки во время Этапа 1 (поиск ID): %v", searchErrors)
 		c.JSON(http.StatusInternalServerError, NewHTTPError(fmt.Errorf("ошибка при поиске ID компаний: %v", searchErrors)))
 		return
 	}
 
+	log.Printf("DetailedSearch: Этап 1: Завершен успешно. Найдено уникальных ID в foundRegCodesMap: %d", len(foundRegCodesMap))
+
+	// --- ДАЛЬШЕ КОД ОСТАЕТСЯ БЕЗ ИЗМЕНЕНИЙ ---
+
 	if len(foundRegCodesMap) == 0 {
-		c.JSON(http.StatusOK, []models.CompanySearchResult{}) // Возвращаем пустой массив, если ничего не найдено
+		log.Println("DetailedSearch: Уникальные ID не найдены в foundRegCodesMap. Возвращаем пустой результат.") // Добавим лог сюда
+		c.JSON(http.StatusOK, []models.CompanySearchResult{})                                                    // Возвращаем пустой массив, если ничего не найдено
 		return
 	}
 
-	// --- Этап 2: Получение полной информации для каждого найденного Regcode ---
-
+	// --- Этап 2: Получение полной информации ... (код без изменений) ---
+	log.Println("DetailedSearch: Этап 2: Начало получения полной информации для найденных ID.")
 	finalResults := make([]models.CompanySearchResult, 0, len(foundRegCodesMap))
-	var dataFetchErrors []error // Ошибки при получении полных данных
+	var dataFetchErrors []error
 
-	// Получаем данные последовательно для каждого regCode
-	// Можно оптимизировать с помощью горутин и каналов, если regCode много
+	// Используем обычный db.DB здесь, Debug не обязателен для всех запросов
 	for regCode := range foundRegCodesMap {
+		log.Printf("DetailedSearch: Этап 2: Обработка ID: %s", regCode)
+		// ... (весь ваш код для Этапа 2 без изменений) ...
+
 		var companyRegister models.Register
 		var members []models.Member
 		var beneficialOwners []models.BeneficialOwner
@@ -158,54 +227,55 @@ func DetailedSearch(c *gin.Context) {
 		var reportDetails []models.FinancialReportDetail
 
 		// Получаем основную информацию о компании
-		err := db.DB.Where("regcode = ?", regCode).First(&companyRegister).Error
+		err := db.DB.Where("regcode = ?", regCode).First(&companyRegister).Error // Используем db.DB
 		if err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
-				// Компания была найдена по бенефициару/участнику, но нет записи в register? Странно, но пропустим.
+				log.Printf("DetailedSearch: Этап 2: Предупреждение: Не найдена запись register для regcode %s. Пропускаем.", regCode)
 				dataFetchErrors = append(dataFetchErrors, fmt.Errorf("не найдена запись register для regcode %s (ранее найденного)", regCode))
 				continue // Переходим к следующему regCode
 			} else {
+				log.Printf("DetailedSearch: Этап 2: Ошибка получения register для %s: %v. Пропускаем.", regCode, err)
 				dataFetchErrors = append(dataFetchErrors, fmt.Errorf("ошибка получения register для %s: %w", regCode, err))
 				continue
 			}
 		}
 
+		// ... (остальной код получения members, beneficialOwners, financialStatements...) ...
 		// Получаем участников (Members)
 		err = db.DB.Where("legal_entity_registration_number = ?", regCode).Find(&members).Error
 		if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+			log.Printf("DetailedSearch: Этап 2: Ошибка получения members для %s: %v", regCode, err)
 			dataFetchErrors = append(dataFetchErrors, fmt.Errorf("ошибка получения members для %s: %w", regCode, err))
-			// Не прерываем, т.к. остальная информация может быть важна
 		}
 
 		// Получаем бенефициаров (Beneficial Owners)
 		err = db.DB.Where("legal_entity_registration_number = ?", regCode).Find(&beneficialOwners).Error
 		if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+			log.Printf("DetailedSearch: Этап 2: Ошибка получения beneficial_owners для %s: %v", regCode, err)
 			dataFetchErrors = append(dataFetchErrors, fmt.Errorf("ошибка получения beneficial_owners для %s: %w", regCode, err))
-			// Не прерываем
 		}
 
 		// Получаем финансовые отчеты (Financial Statements)
 		err = db.DB.Where("legal_entity_registration_number = ?", regCode).Order("year desc").Find(&financialStatements).Error
 		if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+			log.Printf("DetailedSearch: Этап 2: Ошибка получения financial_statements для %s: %v", regCode, err)
 			dataFetchErrors = append(dataFetchErrors, fmt.Errorf("ошибка получения financial_statements для %s: %w", regCode, err))
-			// Не прерываем
 		} else if len(financialStatements) > 0 {
 			// Получаем детали для каждого фин. отчета
 			reportDetails = make([]models.FinancialReportDetail, 0, len(financialStatements))
 			for _, fs := range financialStatements {
-				// Копируем fs для избежания проблем с замыканием указателя в горутинах (если бы они были)
 				currentFs := fs
 				detail := models.FinancialReportDetail{
 					FinancialStatementInfo: &currentFs,
 				}
-				financialStatementID := fs.ID // Используем ID из financial_statements
+				financialStatementID := fs.ID
 
-				// Используем GORM для поиска связанных записей по statement_id
 				var incomeStatement models.IncomeStatement
 				errIncome := db.DB.Where("statement_id = ?", financialStatementID).First(&incomeStatement).Error
 				if errIncome == nil {
 					detail.IncomeStatement = &incomeStatement
 				} else if !errors.Is(errIncome, gorm.ErrRecordNotFound) {
+					log.Printf("DetailedSearch: Этап 2: Ошибка получения income_statement для fs.id %d: %v", financialStatementID, errIncome)
 					dataFetchErrors = append(dataFetchErrors, fmt.Errorf("ошибка получения income_statement для fs.id %d: %w", financialStatementID, errIncome))
 				}
 
@@ -214,6 +284,7 @@ func DetailedSearch(c *gin.Context) {
 				if errBalance == nil {
 					detail.BalanceSheet = &balanceSheet
 				} else if !errors.Is(errBalance, gorm.ErrRecordNotFound) {
+					log.Printf("DetailedSearch: Этап 2: Ошибка получения balance_sheet для fs.id %d: %v", financialStatementID, errBalance)
 					dataFetchErrors = append(dataFetchErrors, fmt.Errorf("ошибка получения balance_sheet для fs.id %d: %w", financialStatementID, errBalance))
 				}
 
@@ -222,6 +293,7 @@ func DetailedSearch(c *gin.Context) {
 				if errCashFlow == nil {
 					detail.CashFlowStatement = &cashFlowStatement
 				} else if !errors.Is(errCashFlow, gorm.ErrRecordNotFound) {
+					log.Printf("DetailedSearch: Этап 2: Ошибка получения cash_flow_statement для fs.id %d: %v", financialStatementID, errCashFlow)
 					dataFetchErrors = append(dataFetchErrors, fmt.Errorf("ошибка получения cash_flow_statement для fs.id %d: %w", financialStatementID, errCashFlow))
 				}
 
@@ -229,7 +301,6 @@ func DetailedSearch(c *gin.Context) {
 			}
 		}
 
-		// Собираем результат для текущей компании
 		companyResult := models.CompanySearchResult{
 			RegisterInfo:     &companyRegister,
 			Members:          members,
@@ -237,24 +308,23 @@ func DetailedSearch(c *gin.Context) {
 			FinancialReports: reportDetails,
 		}
 		finalResults = append(finalResults, companyResult)
-	}
+		log.Printf("DetailedSearch: Этап 2: Результат для ID %s собран.", regCode)
+	} // Конец цикла for regCode
 
-	// Если были ошибки при получении данных, но есть и успешные результаты,
-	// можно решить: вернуть частичные данные и залогировать ошибки,
-	// или вернуть общую ошибку сервера. Вернем данные + залогируем ошибки.
+	log.Printf("DetailedSearch: Этап 2: Завершен. Собрано %d полных результатов.", len(finalResults))
+
 	if len(dataFetchErrors) > 0 {
-		// Логируем ошибки (используйте ваш логгер)
-		log.Printf("Ошибки при получении полных данных для некоторых компаний: %v", dataFetchErrors)
+		log.Printf("DetailedSearch: Обнаружены ошибки (%d) во время Этапа 2 (сбор полных данных): %v", len(dataFetchErrors), dataFetchErrors)
 	}
 
 	// --- Этап 3: Возвращаем результат ---
+	duration := time.Since(startTime)
+	log.Printf("DetailedSearch: Отправка итогового результата клиенту (%d записей). Общее время: %s", len(finalResults), duration)
 	c.JSON(http.StatusOK, finalResults)
 }
 
-// Не забудьте определить HTTPError и NewHTTPError, если они еще не определены
-// type HTTPError struct {
-//    Error string `json:"error"`
-// }
-// func NewHTTPError(err error) HTTPError {
-//    return HTTPError{Error: err.Error()}
+// --- Не забудьте про эту функцию ---
+// Убедитесь, что она определена ОДИН РАЗ в вашем пакете handlers
+// func NewHTTPError(err error) map[string]interface{} {
+// 	 return gin.H{"error": err.Error()}
 // }
