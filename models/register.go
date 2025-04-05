@@ -1,28 +1,39 @@
+// models/register.go
 package models
 
+// Ваша СУЩЕСТВУЮЩАЯ структура Register
 type Register struct {
-	ID                 uint     `gorm:"primaryKey;autoIncrement" json:"id"`
-	Regcode            *string  `json:"regcode,omitempty"`
-	Sepa               *string  `json:"sepa,omitempty"`
-	Name               *string  `json:"name,omitempty"`
-	NameBeforeQuotes   *string  `json:"name_before_quotes,omitempty"`
-	NameInQuotes       *string  `json:"name_in_quotes,omitempty"`
-	NameAfterQuotes    *string  `json:"name_after_quotes,omitempty"`
-	WithoutQuotes      *string  `json:"without_quotes,omitempty"`
-	Regtype            *string  `json:"regtype,omitempty"`
-	RegtypeText        *string  `json:"regtype_text,omitempty"`
-	Type               *string  `json:"type,omitempty"`
-	TypeText           *string  `json:"type_text,omitempty"`
-	Registered         *string  `json:"registered,omitempty"`
-	Terminated         *string  `json:"terminated,omitempty"`
-	Closed             *string  `json:"closed,omitempty"`
-	Address            *string  `json:"address,omitempty"`
-	IndexCompany       *string  `json:"index_company,omitempty"`
-	Addressid          *string  `json:"addressid,omitempty"`
-	Region             *string  `json:"region,omitempty"`
-	City               *string  `json:"city,omitempty"`
-	Atvk               *string  `json:"atvk,omitempty"`
-	ReregistrationTerm *string  `json:"reregistration_term,omitempty"`
-	Latitude           *float64 `json:"latitude,omitempty"`
-	Longitude          *float64 `json:"longitude,omitempty"`
+	ID uint `gorm:"primaryKey;autoIncrement"`
+	// Используем *string или string в зависимости от того, могут ли поля быть NULL
+	// Убедитесь, что типы и теги gorm:"column:..." соответствуют ВАШЕЙ таблице register
+	Regcode            *string `gorm:"uniqueIndex"` // Добавим uniqueIndex, как в DDL
+	Sepa               *string
+	Name               *string
+	NameBeforeQuotes   *string `gorm:"column:name_before_quotes"`
+	NameInQuotes       *string `gorm:"column:name_in_quotes"`
+	NameAfterQuotes    *string `gorm:"column:name_after_quotes"`
+	WithoutQuotes      *string `gorm:"column:without_quotes"`
+	Regtype            *string
+	RegtypeText        *string `gorm:"column:regtype_text"`
+	Type               *string
+	TypeText           *string `gorm:"column:type_text"`
+	Registered         *string
+	Terminated         *string
+	Closed             *string
+	Address            *string
+	Index              *string `gorm:"column:index"` // Используем имя "index" из DDL таблицы register
+	Addressid          *string
+	Region             *string
+	City               *string
+	Atvk               *string
+	ReregistrationTerm *string `gorm:"column:reregistration_term"`
+	Latitude           *string // Оставляем TEXT, как в DDL таблицы register
+	Longitude          *string // Оставляем TEXT, как в DDL таблицы register
+}
+
+// !!! --- ДОБАВЬТЕ ЭТОТ МЕТОД --- !!!
+// Он явно укажет GORM использовать таблицу 'register' (в единственном числе)
+// для структуры Register.
+func (Register) TableName() string {
+	return "register"
 }

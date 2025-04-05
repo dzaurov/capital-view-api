@@ -28,7 +28,11 @@ import (
 // @schemes http https
 func main() {
 	// Initialize Database
-	db.InitDB()
+	err := db.ConnectDatabase() // <--- Используйте ConnectDatabase() вместо InitDB()
+	if err != nil {
+		log.Fatalf("FATAL: Failed to connect to database: %v", err)
+	}
+	log.Println("Database connection successful.")
 
 	// Initialize Gin router
 	router := gin.Default()

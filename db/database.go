@@ -1,40 +1,42 @@
+// db/database.go
 package db
 
 import (
-	"capital-view-api/models" // Adjust import path if needed
-	"log"
+	"log" // Убедитесь, что log импортирован
+	"os"
 
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
+	// "gorm.io/gorm/logger" // Закомментировано в вашем коде, но может понадобиться
 )
 
 var DB *gorm.DB
 
-func InitDB() {
-	var err error
-	// Use the DSN from your Prisma schema
-	dsn := "mydata.db"
-	DB, err = gorm.Open(sqlite.Open(dsn), &gorm.Config{})
-	if err != nil {
-		log.Fatalf("Failed to connect to database: %v", err)
+func ConnectDatabase() error {
+	dbPath := os.Getenv("DB_PATH")
+	if dbPath == "" {
+		dbPath = "mydata.db" // Имя по умолчанию, если DB_PATH не задан
 	}
 
-	log.Println("Database connection established")
+	// --- ДОБАВЬТЕ ЭТОТ ЛОГ ---
+	// Чтобы точно знать, какой путь используется
+	log.Printf("INFO: Attempting to connect to database at path: [%s]", dbPath)
+	// -------------------------
 
-	// AutoMigrate the schema
-	// This creates the tables based on your Go structs if they don't exist
-	err = DB.AutoMigrate(
-		&models.Register{},
-		&models.Member{},
-		&models.IncomeStatement{},
-		&models.FinancialStatement{},
-		&models.CashFlowStatement{},
-		&models.BeneficialOwner{},
-		&models.BalanceSheet{},
-	)
+	// Для теста можно временно закомментировать строки выше и использовать АБСОЛЮТНЫЙ ПУТЬ:
+	// dbPath = "/Users/zeropera/Documents/capital-view-api/mydata.db"
+	// log.Printf("INFO: [TEST] Using absolute database path: [%s]", dbPath)
+
+	database, err := gorm.Open(sqlite.Open(dbPath), &gorm.Config{
+		// Logger: logger.Default.LogMode(logger.Info), // Можно раскомментировать для GORM логов
+	})
+
 	if err != nil {
-		log.Fatalf("Failed to migrate database: %v", err)
+		log.Printf("ERROR: Failed to connect to database at path [%s]: %v", dbPath, err) // Добавим путь в лог ошибки
+		return err
 	}
 
-	log.Println("Database migrated")
+	DB = database
+	// log.Println("Database connection established.") // Можно раскомментировать
+	return nil
 }
