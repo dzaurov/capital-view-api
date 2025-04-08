@@ -35,7 +35,8 @@ definitions:
         type: string
       provisions:
         type: string
-      statement_id:
+      statementID:
+        description: <--- Добавить/обновить тег
         type: string
       total_assets:
         type: string
@@ -51,14 +52,17 @@ definitions:
       birth_date:
         type: string
       forename:
+        description: <-- Индекс для поиска
         type: string
       id:
         type: integer
       last_modified_at:
         type: string
       latvian_identity_number_masked:
+        description: '... остальные поля ...'
         type: string
       legal_entity_registration_number:
+        description: Индекс нужен для поиска по компании и для связи в Registers
         type: string
       nationality:
         type: string
@@ -67,6 +71,7 @@ definitions:
       residence:
         type: string
       surname:
+        description: <-- Индекс для поиска
         type: string
     type: object
   models.CashFlowStatement:
@@ -145,41 +150,16 @@ definitions:
         type: integer
       net_increase:
         type: string
-      statement_id:
+      statementID:
+        description: <--- Добавить/обновить тег
         type: string
-    type: object
-  models.CompanySearchResult:
-    properties:
-      beneficial_owners:
-        items:
-          $ref: '#/definitions/models.BeneficialOwner'
-        type: array
-      financial_reports:
-        items:
-          $ref: '#/definitions/models.FinancialReportDetail'
-        type: array
-      members:
-        items:
-          $ref: '#/definitions/models.Member'
-        type: array
-      register_info:
-        allOf:
-        - $ref: '#/definitions/models.Register'
-        description: Сделаем основным, не опциональным
-    type: object
-  models.FinancialReportDetail:
-    properties:
-      balance_sheet:
-        $ref: '#/definitions/models.BalanceSheet'
-      cash_flow_statement:
-        $ref: '#/definitions/models.CashFlowStatement'
-      financial_statement_info:
-        $ref: '#/definitions/models.FinancialStatement'
-      income_statement:
-        $ref: '#/definitions/models.IncomeStatement'
     type: object
   models.FinancialStatement:
     properties:
+      balanceSheet:
+        $ref: '#/definitions/models.BalanceSheet'
+      cashFlowStatement:
+        $ref: '#/definitions/models.CashFlowStatement'
       created_at:
         type: string
       currency:
@@ -190,15 +170,25 @@ definitions:
         type: string
       id:
         type: integer
-      legal_entity_registration_number:
+      incomeStatement:
+        allOf:
+        - $ref: '#/definitions/models.IncomeStatement'
+        description: |-
+          --- Связи (Один к одному/нулю с деталями) ---
+          Указываем, что у Statement есть детали, связанные по ID этого Statement
+          и колонке 'statement_id' в таблицах деталей.
+      legalEntityRegistrationNumber:
+        description: Индекс нужен для поиска по компании и для связи в Registers
         type: string
       rounded_to_nearest:
         type: string
       source_schema:
+        description: '... остальные поля ...'
         type: string
       source_type:
         type: string
       year:
+        description: <-- Составной уникальный индекс
         type: string
       year_ended_on:
         type: string
@@ -263,12 +253,14 @@ definitions:
         type: string
       provision_for_income_taxes:
         type: string
-      statement_id:
+      statementID:
+        description: <--- Добавить/обновить тег
         type: string
     type: object
   models.Member:
     properties:
       at_legal_entity_registration_number:
+        description: Индекс нужен для поиска по компании и для связи в Registers
         type: string
       birth_date:
         type: string
@@ -281,10 +273,14 @@ definitions:
       last_modified_at:
         type: string
       latvian_identity_number_masked:
+        description: '... остальные поля ...'
         type: string
       legal_entity_registration_number:
+        description: Если это поле = regcode компании, где лицо является участником,
+          то нужен индекс
         type: string
       name:
+        description: <-- Индекс для поиска по имени
         type: string
       number_of_shares:
         type: string
@@ -297,7 +293,21 @@ definitions:
       uri:
         type: string
     type: object
-  models.Register:
+  models.PaginatedResponse:
+    properties:
+      data:
+        description: Срез данных для текущей страницы
+      limit:
+        description: Лимит записей на странице
+        type: integer
+      page:
+        description: Текущий номер страницы
+        type: integer
+      total_records:
+        description: Общее количество записей (не только на странице)
+        type: integer
+    type: object
+  models.Registers:
     properties:
       address:
         type: string
@@ -305,27 +315,47 @@ definitions:
         type: string
       atvk:
         type: string
+      beneficialOwners:
+        items:
+          $ref: '#/definitions/models.BeneficialOwner'
+        type: array
       city:
         type: string
       closed:
         type: string
+      financialStatements:
+        items:
+          $ref: '#/definitions/models.FinancialStatement'
+        type: array
       id:
         type: integer
-      index_company:
+      indexCompany:
         type: string
       latitude:
-        type: number
+        type: string
       longitude:
-        type: number
+        type: string
+      members:
+        description: |-
+          --- Связи ---
+          Указываем, что у одной записи Registers может быть много записей Member,
+          связанных по колонке 'legal_entity_registration_number' в таблице members,
+          которая соответствует колонке 'regcode' в таблице registers.
+        items:
+          $ref: '#/definitions/models.Member'
+        type: array
       name:
+        description: <-- Добавим индекс для поиска по имени
         type: string
-      name_after_quotes:
+      nameAfterQuotes:
         type: string
-      name_before_quotes:
+      nameBeforeQuotes:
         type: string
-      name_in_quotes:
+      nameInQuotes:
+        description: <-- Добавим индекс
         type: string
       regcode:
+        description: Уникальный индекс уже есть
         type: string
       region:
         type: string
@@ -333,9 +363,9 @@ definitions:
         type: string
       regtype:
         type: string
-      regtype_text:
+      regtypeText:
         type: string
-      reregistration_term:
+      reregistrationTerm:
         type: string
       sepa:
         type: string
@@ -343,9 +373,10 @@ definitions:
         type: string
       type:
         type: string
-      type_text:
+      typeText:
         type: string
-      without_quotes:
+      withoutQuotes:
+        description: <-- Добавим индекс
         type: string
     type: object
 host: localhost:8080
@@ -511,156 +542,54 @@ paths:
       summary: Update an existing balance sheet entry
       tags:
       - balance-sheets
-  /beneficial-owners:
+  /beneficial-owners/by-regcode/{regcode}:
     get:
-      description: Retrieve a list of all beneficial owner records
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              $ref: '#/definitions/models.BeneficialOwner'
-            type: array
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/handlers.HTTPError'
-      summary: Get all beneficial owner entries
-      tags:
-      - beneficial-owners
-    post:
-      consumes:
-      - application/json
-      description: Add a new beneficial owner record to the database
+      description: Возвращает пагинированный список бенефициаров (beneficial owners)
+        для указанной компании.
       parameters:
-      - description: Beneficial Owner data to create
-        in: body
-        name: beneficialOwner
-        required: true
-        schema:
-          $ref: '#/definitions/models.BeneficialOwner'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Created
-          schema:
-            $ref: '#/definitions/models.BeneficialOwner'
-        "400":
-          description: Bad Request - Invalid input data
-          schema:
-            $ref: '#/definitions/handlers.HTTPError'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/handlers.HTTPError'
-      summary: Create a new beneficial owner entry
-      tags:
-      - beneficial-owners
-  /beneficial-owners/{id}:
-    delete:
-      description: Remove a beneficial owner record from the database using its ID
-      parameters:
-      - description: Beneficial Owner ID
+      - description: Regcode компании
         in: path
-        name: id
+        name: regcode
         required: true
+        type: string
+      - default: 1
+        description: Номер страницы
+        in: query
+        minimum: 1
+        name: page
+        type: integer
+      - default: 20
+        description: Записей на странице
+        in: query
+        maximum: 100
+        minimum: 1
+        name: limit
         type: integer
       produces:
       - application/json
       responses:
         "200":
-          description: Success message
+          description: Пагинированный список бенефициаров
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            allOf:
+            - $ref: '#/definitions/models.PaginatedResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/models.BeneficialOwner'
+                  type: array
+              type: object
         "400":
-          description: Bad Request - Invalid ID format
-          schema:
-            $ref: '#/definitions/handlers.HTTPError'
-        "404":
-          description: Not Found - Beneficial Owner not found
+          description: Неверный Regcode
           schema:
             $ref: '#/definitions/handlers.HTTPError'
         "500":
-          description: Internal Server Error
+          description: Внутренняя ошибка сервера
           schema:
             $ref: '#/definitions/handlers.HTTPError'
-      summary: Delete a beneficial owner entry by ID
+      summary: Получить бенефициаров компании по Regcode
       tags:
-      - beneficial-owners
-    get:
-      description: Retrieve details of a specific beneficial owner record using its
-        ID
-      parameters:
-      - description: Beneficial Owner ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/models.BeneficialOwner'
-        "400":
-          description: Bad Request - Invalid ID format
-          schema:
-            $ref: '#/definitions/handlers.HTTPError'
-        "404":
-          description: Not Found - Beneficial Owner not found
-          schema:
-            $ref: '#/definitions/handlers.HTTPError'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/handlers.HTTPError'
-      summary: Get a single beneficial owner entry by ID
-      tags:
-      - beneficial-owners
-    put:
-      consumes:
-      - application/json
-      description: Modify the details of an existing beneficial owner record by ID
-      parameters:
-      - description: Beneficial Owner ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      - description: Beneficial Owner data to update
-        in: body
-        name: beneficialOwner
-        required: true
-        schema:
-          $ref: '#/definitions/models.BeneficialOwner'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/models.BeneficialOwner'
-        "400":
-          description: Bad Request - Invalid ID format or input data
-          schema:
-            $ref: '#/definitions/handlers.HTTPError'
-        "404":
-          description: Not Found - Beneficial Owner not found
-          schema:
-            $ref: '#/definitions/handlers.HTTPError'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/handlers.HTTPError'
-      summary: Update an existing beneficial owner entry
-      tags:
-      - beneficial-owners
+      - beneficial_owner
   /cash-flow-statements:
     get:
       description: Retrieve a list of all cash flow statement records
@@ -813,158 +742,54 @@ paths:
       summary: Update an existing cash flow statement entry
       tags:
       - cash-flow-statements
-  /financial-statements:
+  /financial-statements/by-regcode/{regcode}:
     get:
-      description: Retrieve a list of all financial statement records
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              $ref: '#/definitions/models.FinancialStatement'
-            type: array
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/handlers.HTTPError'
-      summary: Get all financial statement entries
-      tags:
-      - financial-statements
-    post:
-      consumes:
-      - application/json
-      description: Add a new financial statement record to the database
+      description: Возвращает пагинированный список фин. отчетов (financial statements)
+        для указанной компании.
       parameters:
-      - description: Financial Statement data to create
-        in: body
-        name: financialStatement
-        required: true
-        schema:
-          $ref: '#/definitions/models.FinancialStatement'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Created
-          schema:
-            $ref: '#/definitions/models.FinancialStatement'
-        "400":
-          description: Bad Request - Invalid input data
-          schema:
-            $ref: '#/definitions/handlers.HTTPError'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/handlers.HTTPError'
-      summary: Create a new financial statement entry
-      tags:
-      - financial-statements
-  /financial-statements/{id}:
-    delete:
-      description: Remove a financial statement record from the database using its
-        ID
-      parameters:
-      - description: Financial Statement ID
+      - description: Regcode компании
         in: path
-        name: id
+        name: regcode
         required: true
+        type: string
+      - default: 1
+        description: Номер страницы
+        in: query
+        minimum: 1
+        name: page
+        type: integer
+      - default: 20
+        description: Записей на странице
+        in: query
+        maximum: 100
+        minimum: 1
+        name: limit
         type: integer
       produces:
       - application/json
       responses:
         "200":
-          description: Success message
+          description: Пагинированный список фин. отчетов
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            allOf:
+            - $ref: '#/definitions/models.PaginatedResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/models.FinancialStatement'
+                  type: array
+              type: object
         "400":
-          description: Bad Request - Invalid ID format
-          schema:
-            $ref: '#/definitions/handlers.HTTPError'
-        "404":
-          description: Not Found - Financial Statement not found
+          description: Неверный Regcode
           schema:
             $ref: '#/definitions/handlers.HTTPError'
         "500":
-          description: Internal Server Error
+          description: Внутренняя ошибка сервера
           schema:
             $ref: '#/definitions/handlers.HTTPError'
-      summary: Delete a financial statement entry by ID
+      summary: Получить фин. отчеты компании по Regcode
       tags:
-      - financial-statements
-    get:
-      description: Retrieve details of a specific financial statement record using
-        its ID
-      parameters:
-      - description: Financial Statement ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/models.FinancialStatement'
-        "400":
-          description: Bad Request - Invalid ID format
-          schema:
-            $ref: '#/definitions/handlers.HTTPError'
-        "404":
-          description: Not Found - Financial Statement not found
-          schema:
-            $ref: '#/definitions/handlers.HTTPError'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/handlers.HTTPError'
-      summary: Get a single financial statement entry by ID
-      tags:
-      - financial-statements
-    put:
-      consumes:
-      - application/json
-      description: Modify the details of an existing financial statement record by
-        ID
-      parameters:
-      - description: Financial Statement ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      - description: Financial Statement data to update
-        in: body
-        name: financialStatement
-        required: true
-        schema:
-          $ref: '#/definitions/models.FinancialStatement'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/models.FinancialStatement'
-        "400":
-          description: Bad Request - Invalid ID format or input data
-          schema:
-            $ref: '#/definitions/handlers.HTTPError'
-        "404":
-          description: Not Found - Financial Statement not found
-          schema:
-            $ref: '#/definitions/handlers.HTTPError'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/handlers.HTTPError'
-      summary: Update an existing financial statement entry
-      tags:
-      - financial-statements
+      - financial_statement
   /income-statements:
     get:
       description: Retrieve a list of all income statement records
@@ -1115,332 +940,172 @@ paths:
       summary: Update an existing income statement entry
       tags:
       - income-statements
-  /members:
+  /members/by-regcode/{regcode}:
     get:
-      description: Retrieve a list of all member records
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              $ref: '#/definitions/models.Member'
-            type: array
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/handlers.HTTPError'
-      summary: Get all member entries
-      tags:
-      - members
-    post:
-      consumes:
-      - application/json
-      description: Add a new member record to the database
+      description: Возвращает пагинированный список участников (members) для указанной
+        компании.
       parameters:
-      - description: Member data to create
-        in: body
-        name: member
-        required: true
-        schema:
-          $ref: '#/definitions/models.Member'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Created
-          schema:
-            $ref: '#/definitions/models.Member'
-        "400":
-          description: Bad Request - Invalid input data
-          schema:
-            $ref: '#/definitions/handlers.HTTPError'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/handlers.HTTPError'
-      summary: Create a new member entry
-      tags:
-      - members
-  /members/{id}:
-    delete:
-      description: Remove a member record from the database using its ID
-      parameters:
-      - description: Member ID
+      - description: Regcode компании
         in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Success message
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "400":
-          description: Bad Request - Invalid ID format
-          schema:
-            $ref: '#/definitions/handlers.HTTPError'
-        "404":
-          description: Not Found - Member not found
-          schema:
-            $ref: '#/definitions/handlers.HTTPError'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/handlers.HTTPError'
-      summary: Delete a member entry by ID
-      tags:
-      - members
-    get:
-      description: Retrieve details of a specific member record using its ID
-      parameters:
-      - description: Member ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/models.Member'
-        "400":
-          description: Bad Request - Invalid ID format
-          schema:
-            $ref: '#/definitions/handlers.HTTPError'
-        "404":
-          description: Not Found - Member not found
-          schema:
-            $ref: '#/definitions/handlers.HTTPError'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/handlers.HTTPError'
-      summary: Get a single member entry by ID
-      tags:
-      - members
-    put:
-      consumes:
-      - application/json
-      description: Modify the details of an existing member record by ID
-      parameters:
-      - description: Member ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      - description: Member data to update
-        in: body
-        name: member
-        required: true
-        schema:
-          $ref: '#/definitions/models.Member'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/models.Member'
-        "400":
-          description: Bad Request - Invalid ID format or input data
-          schema:
-            $ref: '#/definitions/handlers.HTTPError'
-        "404":
-          description: Not Found - Member not found
-          schema:
-            $ref: '#/definitions/handlers.HTTPError'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/handlers.HTTPError'
-      summary: Update an existing member entry
-      tags:
-      - members
-  /registers:
-    get:
-      description: Retrieve a list of all register records
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              $ref: '#/definitions/models.Register'
-            type: array
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/handlers.HTTPError'
-      summary: Get all register entries
-      tags:
-      - registers
-    post:
-      consumes:
-      - application/json
-      description: Add a new register record to the database
-      parameters:
-      - description: Register data to create
-        in: body
-        name: register
-        required: true
-        schema:
-          $ref: '#/definitions/models.Register'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Created
-          schema:
-            $ref: '#/definitions/models.Register'
-        "400":
-          description: Bad Request - Invalid input data
-          schema:
-            $ref: '#/definitions/handlers.HTTPError'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/handlers.HTTPError'
-      summary: Create a new register entry
-      tags:
-      - registers
-  /registers/{id}:
-    delete:
-      description: Remove a register record from the database using its ID
-      parameters:
-      - description: Register ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Success message
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "400":
-          description: Bad Request - Invalid ID format
-          schema:
-            $ref: '#/definitions/handlers.HTTPError'
-        "404":
-          description: Not Found - Register not found
-          schema:
-            $ref: '#/definitions/handlers.HTTPError'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/handlers.HTTPError'
-      summary: Delete a register entry by ID
-      tags:
-      - registers
-    get:
-      description: Retrieve details of a specific register record using its ID
-      parameters:
-      - description: Register ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/models.Register'
-        "400":
-          description: Bad Request - Invalid ID format
-          schema:
-            $ref: '#/definitions/handlers.HTTPError'
-        "404":
-          description: Not Found - Register not found
-          schema:
-            $ref: '#/definitions/handlers.HTTPError'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/handlers.HTTPError'
-      summary: Get a single register entry by ID
-      tags:
-      - registers
-    put:
-      consumes:
-      - application/json
-      description: Modify the details of an existing register record by ID
-      parameters:
-      - description: Register ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      - description: Register data to update
-        in: body
-        name: register
-        required: true
-        schema:
-          $ref: '#/definitions/models.Register'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/models.Register'
-        "400":
-          description: Bad Request - Invalid ID format or input data
-          schema:
-            $ref: '#/definitions/handlers.HTTPError'
-        "404":
-          description: Not Found - Register not found
-          schema:
-            $ref: '#/definitions/handlers.HTTPError'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/handlers.HTTPError'
-      summary: Update an existing register entry
-      tags:
-      - registers
-  /search/detailed:
-    get:
-      description: Ищет компании по части названия, Regcode, SEPA, имени бенефициара
-        или участника (member). Возвращает список компаний с полной информацией.
-      parameters:
-      - description: Поисковый запрос (название, Regcode, SEPA, имя)
-        in: query
-        name: q
+        name: regcode
         required: true
         type: string
+      - default: 1
+        description: Номер страницы
+        in: query
+        minimum: 1
+        name: page
+        type: integer
+      - default: 20
+        description: Записей на странице
+        in: query
+        maximum: 100
+        minimum: 1
+        name: limit
+        type: integer
       produces:
       - application/json
       responses:
         "200":
-          description: Список найденных компаний с детальной информацией
+          description: Пагинированный список участников
           schema:
-            items:
-              $ref: '#/definitions/models.CompanySearchResult'
-            type: array
+            allOf:
+            - $ref: '#/definitions/models.PaginatedResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/models.Member'
+                  type: array
+              type: object
         "400":
-          description: Неверный запрос - отсутствует параметр 'q'
+          description: Неверный Regcode
           schema:
             $ref: '#/definitions/handlers.HTTPError'
         "500":
           description: Внутренняя ошибка сервера
           schema:
             $ref: '#/definitions/handlers.HTTPError'
-      summary: Расширенный поиск компаний
+      summary: Получить участников компании по Regcode
+      tags:
+      - member
+  /register/{regcode}:
+    get:
+      description: Получает детальную информацию о компании по её Regcode.
+      parameters:
+      - description: Regcode компании
+        in: path
+        name: regcode
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Информация о компании
+          schema:
+            $ref: '#/definitions/models.Registers'
+        "400":
+          description: Неверный Regcode
+          schema:
+            $ref: '#/definitions/handlers.HTTPError'
+        "404":
+          description: Компания не найдена
+          schema:
+            $ref: '#/definitions/handlers.HTTPError'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/handlers.HTTPError'
+      summary: Получить информацию о компании по Regcode
+      tags:
+      - register
+  /registers:
+    get:
+      description: Возвращает пагинированный список записей из таблицы registers.
+      parameters:
+      - default: 1
+        description: Номер страницы
+        in: query
+        minimum: 1
+        name: page
+        type: integer
+      - default: 20
+        description: Записей на странице
+        in: query
+        maximum: 100
+        minimum: 1
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Пагинированный список записей
+          schema:
+            allOf:
+            - $ref: '#/definitions/models.PaginatedResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/models.Registers'
+                  type: array
+              type: object
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/handlers.HTTPError'
+      summary: Получить список всех записей регистра
+      tags:
+      - register
+  /search/detailed:
+    get:
+      description: Ищет компании по части названия, Regcode, SEPA, имени бенефициара
+        или участника. Возвращает пагинированный список companies (registers) с вложенными
+        связанными данными.
+      parameters:
+      - description: Поисковый запрос
+        in: query
+        name: q
+        required: true
+        type: string
+      - default: 1
+        description: Номер страницы
+        in: query
+        minimum: 1
+        name: page
+        type: integer
+      - default: 20
+        description: Записей на странице
+        in: query
+        maximum: 100
+        minimum: 1
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Пагинированный список компаний (с вложенными Members, BeneficialOwners,
+            FinancialStatements)" // <-- ИЗМЕНЕНО data type на models.Registers
+          schema:
+            allOf:
+            - $ref: '#/definitions/models.PaginatedResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/models.Registers'
+                  type: array
+              type: object
+        "400":
+          description: Неверный запрос (отсутствует 'q')
+          schema:
+            $ref: '#/definitions/handlers.HTTPError'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/handlers.HTTPError'
+      summary: Расширенный поиск компаний (Оптимизированный + Пагинация + Вложенный
+        ответ)
       tags:
       - search
 schemes:

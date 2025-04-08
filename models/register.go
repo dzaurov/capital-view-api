@@ -1,15 +1,15 @@
-// models/registers.go (или где определена структура Registers)
+// models/registers.go
 package models
 
 type Registers struct {
 	ID                 uint    `gorm:"primaryKey;autoIncrement"`
-	Regcode            *string `gorm:"uniqueIndex"`
+	Regcode            *string `gorm:"uniqueIndex"` // Уникальный индекс уже есть
 	Sepa               *string
-	Name               *string
+	Name               *string `gorm:"index"` // <-- Добавим индекс для поиска по имени
 	NameBeforeQuotes   *string `gorm:"column:name_before_quotes"`
-	NameInQuotes       *string `gorm:"column:name_in_quotes"`
+	NameInQuotes       *string `gorm:"column:name_in_quotes;index"` // <-- Добавим индекс
 	NameAfterQuotes    *string `gorm:"column:name_after_quotes"`
-	WithoutQuotes      *string `gorm:"column:without_quotes"`
+	WithoutQuotes      *string `gorm:"column:without_quotes;index"` // <-- Добавим индекс
 	Regtype            *string
 	RegtypeText        *string `gorm:"column:regtype_text"`
 	Type               *string
@@ -26,10 +26,17 @@ type Registers struct {
 	ReregistrationTerm *string `gorm:"column:reregistration_term"`
 	Latitude           *string
 	Longitude          *string
+
+	// --- Связи ---
+	// Указываем, что у одной записи Registers может быть много записей Member,
+	// связанных по колонке 'legal_entity_registration_number' в таблице members,
+	// которая соответствует колонке 'regcode' в таблице registers.
+	Members             []Member             `gorm:"foreignKey:LegalEntityRegistrationNumber;references:Regcode"`
+	BeneficialOwners    []BeneficialOwner    `gorm:"foreignKey:LegalEntityRegistrationNumber;references:Regcode"`
+	FinancialStatements []FinancialStatement `gorm:"foreignKey:LegalEntityRegistrationNumber;references:Regcode"`
 }
 
-// !!! --- ДОБАВЬТЕ ЭТОТ МЕТОД --- !!!
-// Принудительно указывает GORM использовать таблицу "registers"
+// Метод TableName оставляем, чтобы гарантировать имя "registers"
 func (Registers) TableName() string {
 	return "registers"
 }

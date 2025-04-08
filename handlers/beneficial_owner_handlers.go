@@ -1,173 +1,66 @@
+// handlers/beneficial_owner_handlers.go
 package handlers
 
 import (
-	"capital-view-api/db"     // Adjust import path if needed
-	"capital-view-api/models" // Adjust import path if needed
 	"errors"
+	"log"
 	"net/http"
-	"strconv"
+
+	"capital-view-api/db"
+	"capital-view-api/models"
+	"capital-view-api/utils"
 
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 )
 
-// --- BeneficialOwner Handlers ---
-
-// CreateBeneficialOwner godoc
-// @Summary Create a new beneficial owner entry
-// @Description Add a new beneficial owner record to the database
-// @Tags beneficial-owners
-// @Accept json
+// GetBeneficialOwnersByRegcode godoc
+// @Summary Получить бенефициаров компании по Regcode
+// @Description Возвращает пагинированный список бенефициаров (beneficial owners) для указанной компании.
+// @Tags beneficial_owner
 // @Produce json
-// @Param beneficialOwner body models.BeneficialOwner true "Beneficial Owner data to create"
-// @Success 201 {object} models.BeneficialOwner
-// @Failure 400 {object} HTTPError "Bad Request - Invalid input data"
-// @Failure 500 {object} HTTPError "Internal Server Error"
-// @Router /beneficial-owners [post]
-func CreateBeneficialOwner(c *gin.Context) {
-	var input models.BeneficialOwner
-	if err := c.ShouldBindJSON(&input); err != nil {
-		c.JSON(http.StatusBadRequest, NewHTTPError(err))
+// @Param regcode path string true "Regcode компании"
+// @Param page query int false "Номер страницы" default(1) minimum(1)
+// @Param limit query int false "Записей на странице" default(20) minimum(1) maximum(100)
+// @Success 200 {object} models.PaginatedResponse{data=[]models.BeneficialOwner} "Пагинированный список бенефициаров"
+// @Failure 400 {object} HTTPError "Неверный Regcode"
+// @Failure 500 {object} HTTPError "Внутренняя ошибка сервера"
+// @Router /beneficial-owners/by-regcode/{regcode} [get] // <-- Пример роута
+func GetBeneficialOwnersByRegcode(c *gin.Context) {
+	regcode := c.Param("regcode")
+	if regcode == "" {
+		c.JSON(http.StatusBadRequest, NewHTTPError(errors.New("regcode не может быть пустым")))
 		return
 	}
 
-	result := db.DB.Create(&input)
-	if result.Error != nil {
-		c.JSON(http.StatusInternalServerError, NewHTTPError(result.Error))
+	pagination := utils.GetPaginationParams(c)
+
+	var owners []models.BeneficialOwner
+	var totalRecords int64
+
+	// Базовый запрос
+	queryBuilder := db.DB.Model(&models.BeneficialOwner{}).Where("legal_entity_registration_number = ?", regcode)
+
+	// Считаем общее количество
+	if err := queryBuilder.Count(&totalRecords).Error; err != nil {
+		log.Printf("Error counting beneficial owners for regcode %s: %v", regcode, err)
+		c.JSON(http.StatusInternalServerError, NewHTTPError(err))
 		return
 	}
 
-	c.JSON(http.StatusCreated, input)
-}
-
-// GetBeneficialOwners godoc
-// @Summary Get all beneficial owner entries
-// @Description Retrieve a list of all beneficial owner records
-// @Tags beneficial-owners
-// @Produce json
-// @Success 200 {array} models.BeneficialOwner
-// @Failure 500 {object} HTTPError "Internal Server Error"
-// @Router /beneficial-owners [get]
-func GetBeneficialOwners(c *gin.Context) {
-	var beneficialOwners []models.BeneficialOwner
-	result := db.DB.Find(&beneficialOwners)
-	if result.Error != nil {
-		c.JSON(http.StatusInternalServerError, NewHTTPError(result.Error))
-		return
-	}
-	c.JSON(http.StatusOK, beneficialOwners)
-}
-
-// GetBeneficialOwner godoc
-// @Summary Get a single beneficial owner entry by ID
-// @Description Retrieve details of a specific beneficial owner record using its ID
-// @Tags beneficial-owners
-// @Produce json
-// @Param id path int true "Beneficial Owner ID"
-// @Success 200 {object} models.BeneficialOwner
-// @Failure 400 {object} HTTPError "Bad Request - Invalid ID format"
-// @Failure 404 {object} HTTPError "Not Found - Beneficial Owner not found"
-// @Failure 500 {object} HTTPError "Internal Server Error"
-// @Router /beneficial-owners/{id} [get]
-func GetBeneficialOwner(c *gin.Context) {
-	idStr := c.Param("id")
-	id, err := strconv.ParseUint(idStr, 10, 32)
+	// Получаем данные для страницы
+	err := queryBuilder.Limit(pagination.Limit).Offset(pagination.Offset).Find(&owners).Error
 	if err != nil {
-		c.JSON(http.StatusBadRequest, NewHTTPError(errors.New("invalid ID format")))
+		log.Printf("Error finding beneficial owners for regcode %s with pagination: %v", regcode, err)
+		c.JSON(http.StatusInternalServerError, NewHTTPError(err))
 		return
 	}
 
-	var beneficialOwner models.BeneficialOwner
-	result := db.DB.First(&beneficialOwner, uint(id))
-
-	if result.Error != nil {
-		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-			c.JSON(http.StatusNotFound, NewHTTPError(errors.New("beneficial owner not found")))
-		} else {
-			c.JSON(http.StatusInternalServerError, NewHTTPError(result.Error))
-		}
-		return
+	response := models.PaginatedResponse{
+		TotalRecords: totalRecords,
+		Page:         pagination.Page,
+		Limit:        pagination.Limit,
+		Data:         owners,
 	}
 
-	c.JSON(http.StatusOK, beneficialOwner)
-}
-
-// UpdateBeneficialOwner godoc
-// @Summary Update an existing beneficial owner entry
-// @Description Modify the details of an existing beneficial owner record by ID
-// @Tags beneficial-owners
-// @Accept json
-// @Produce json
-// @Param id path int true "Beneficial Owner ID"
-// @Param beneficialOwner body models.BeneficialOwner true "Beneficial Owner data to update"
-// @Success 200 {object} models.BeneficialOwner
-// @Failure 400 {object} HTTPError "Bad Request - Invalid ID format or input data"
-// @Failure 404 {object} HTTPError "Not Found - Beneficial Owner not found"
-// @Failure 500 {object} HTTPError "Internal Server Error"
-// @Router /beneficial-owners/{id} [put]
-func UpdateBeneficialOwner(c *gin.Context) {
-	idStr := c.Param("id")
-	id, err := strconv.ParseUint(idStr, 10, 32)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, NewHTTPError(errors.New("invalid ID format")))
-		return
-	}
-
-	var existingBeneficialOwner models.BeneficialOwner
-	if err := db.DB.First(&existingBeneficialOwner, uint(id)).Error; err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			c.JSON(http.StatusNotFound, NewHTTPError(errors.New("beneficial owner not found to update")))
-		} else {
-			c.JSON(http.StatusInternalServerError, NewHTTPError(err))
-		}
-		return
-	}
-
-	var input models.BeneficialOwner
-	if err := c.ShouldBindJSON(&input); err != nil {
-		c.JSON(http.StatusBadRequest, NewHTTPError(err))
-		return
-	}
-
-	result := db.DB.Model(&existingBeneficialOwner).Updates(input)
-	if result.Error != nil {
-		c.JSON(http.StatusInternalServerError, NewHTTPError(result.Error))
-		return
-	}
-
-	c.JSON(http.StatusOK, existingBeneficialOwner)
-}
-
-// DeleteBeneficialOwner godoc
-// @Summary Delete a beneficial owner entry by ID
-// @Description Remove a beneficial owner record from the database using its ID
-// @Tags beneficial-owners
-// @Produce json
-// @Param id path int true "Beneficial Owner ID"
-// @Success 200 {object} map[string]string "Success message"
-// @Failure 400 {object} HTTPError "Bad Request - Invalid ID format"
-// @Failure 404 {object} HTTPError "Not Found - Beneficial Owner not found"
-// @Failure 500 {object} HTTPError "Internal Server Error"
-// @Router /beneficial-owners/{id} [delete]
-func DeleteBeneficialOwner(c *gin.Context) {
-	idStr := c.Param("id")
-	id, err := strconv.ParseUint(idStr, 10, 32)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, NewHTTPError(errors.New("invalid ID format")))
-		return
-	}
-
-	result := db.DB.Delete(&models.BeneficialOwner{}, uint(id))
-
-	if result.Error != nil {
-		c.JSON(http.StatusInternalServerError, NewHTTPError(result.Error))
-		return
-	}
-
-	if result.RowsAffected == 0 {
-		c.JSON(http.StatusNotFound, NewHTTPError(errors.New("beneficial owner not found to delete")))
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{"message": "Beneficial Owner deleted successfully"})
+	c.JSON(http.StatusOK, response)
 }

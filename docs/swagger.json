@@ -247,224 +247,72 @@
                 }
             }
         },
-        "/beneficial-owners": {
+        "/beneficial-owners/by-regcode/{regcode}": {
             "get": {
-                "description": "Retrieve a list of all beneficial owner records",
+                "description": "Возвращает пагинированный список бенефициаров (beneficial owners) для указанной компании.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "beneficial-owners"
+                    "beneficial_owner"
                 ],
-                "summary": "Get all beneficial owner entries",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/models.BeneficialOwner"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.HTTPError"
-                        }
-                    }
-                }
-            },
-            "post": {
-                "description": "Add a new beneficial owner record to the database",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "beneficial-owners"
-                ],
-                "summary": "Create a new beneficial owner entry",
+                "summary": "Получить бенефициаров компании по Regcode",
                 "parameters": [
                     {
-                        "description": "Beneficial Owner data to create",
-                        "name": "beneficialOwner",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.BeneficialOwner"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Created",
-                        "schema": {
-                            "$ref": "#/definitions/models.BeneficialOwner"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request - Invalid input data",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.HTTPError"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.HTTPError"
-                        }
-                    }
-                }
-            }
-        },
-        "/beneficial-owners/{id}": {
-            "get": {
-                "description": "Retrieve details of a specific beneficial owner record using its ID",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "beneficial-owners"
-                ],
-                "summary": "Get a single beneficial owner entry by ID",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Beneficial Owner ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/models.BeneficialOwner"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request - Invalid ID format",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.HTTPError"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found - Beneficial Owner not found",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.HTTPError"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.HTTPError"
-                        }
-                    }
-                }
-            },
-            "put": {
-                "description": "Modify the details of an existing beneficial owner record by ID",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "beneficial-owners"
-                ],
-                "summary": "Update an existing beneficial owner entry",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Beneficial Owner ID",
-                        "name": "id",
+                        "type": "string",
+                        "description": "Regcode компании",
+                        "name": "regcode",
                         "in": "path",
                         "required": true
                     },
                     {
-                        "description": "Beneficial Owner data to update",
-                        "name": "beneficialOwner",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.BeneficialOwner"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/models.BeneficialOwner"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request - Invalid ID format or input data",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.HTTPError"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found - Beneficial Owner not found",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.HTTPError"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.HTTPError"
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "description": "Remove a beneficial owner record from the database using its ID",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "beneficial-owners"
-                ],
-                "summary": "Delete a beneficial owner entry by ID",
-                "parameters": [
-                    {
+                        "minimum": 1,
                         "type": "integer",
-                        "description": "Beneficial Owner ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
+                        "default": 1,
+                        "description": "Номер страницы",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "maximum": 100,
+                        "minimum": 1,
+                        "type": "integer",
+                        "default": 20,
+                        "description": "Записей на странице",
+                        "name": "limit",
+                        "in": "query"
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "Success message",
+                        "description": "Пагинированный список бенефициаров",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/models.PaginatedResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/models.BeneficialOwner"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "400": {
-                        "description": "Bad Request - Invalid ID format",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.HTTPError"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found - Beneficial Owner not found",
+                        "description": "Неверный Regcode",
                         "schema": {
                             "$ref": "#/definitions/handlers.HTTPError"
                         }
                     },
                     "500": {
-                        "description": "Internal Server Error",
+                        "description": "Внутренняя ошибка сервера",
                         "schema": {
                             "$ref": "#/definitions/handlers.HTTPError"
                         }
@@ -697,224 +545,72 @@
                 }
             }
         },
-        "/financial-statements": {
+        "/financial-statements/by-regcode/{regcode}": {
             "get": {
-                "description": "Retrieve a list of all financial statement records",
+                "description": "Возвращает пагинированный список фин. отчетов (financial statements) для указанной компании.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "financial-statements"
+                    "financial_statement"
                 ],
-                "summary": "Get all financial statement entries",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/models.FinancialStatement"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.HTTPError"
-                        }
-                    }
-                }
-            },
-            "post": {
-                "description": "Add a new financial statement record to the database",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "financial-statements"
-                ],
-                "summary": "Create a new financial statement entry",
+                "summary": "Получить фин. отчеты компании по Regcode",
                 "parameters": [
                     {
-                        "description": "Financial Statement data to create",
-                        "name": "financialStatement",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.FinancialStatement"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Created",
-                        "schema": {
-                            "$ref": "#/definitions/models.FinancialStatement"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request - Invalid input data",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.HTTPError"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.HTTPError"
-                        }
-                    }
-                }
-            }
-        },
-        "/financial-statements/{id}": {
-            "get": {
-                "description": "Retrieve details of a specific financial statement record using its ID",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "financial-statements"
-                ],
-                "summary": "Get a single financial statement entry by ID",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Financial Statement ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/models.FinancialStatement"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request - Invalid ID format",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.HTTPError"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found - Financial Statement not found",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.HTTPError"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.HTTPError"
-                        }
-                    }
-                }
-            },
-            "put": {
-                "description": "Modify the details of an existing financial statement record by ID",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "financial-statements"
-                ],
-                "summary": "Update an existing financial statement entry",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Financial Statement ID",
-                        "name": "id",
+                        "type": "string",
+                        "description": "Regcode компании",
+                        "name": "regcode",
                         "in": "path",
                         "required": true
                     },
                     {
-                        "description": "Financial Statement data to update",
-                        "name": "financialStatement",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.FinancialStatement"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/models.FinancialStatement"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request - Invalid ID format or input data",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.HTTPError"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found - Financial Statement not found",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.HTTPError"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.HTTPError"
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "description": "Remove a financial statement record from the database using its ID",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "financial-statements"
-                ],
-                "summary": "Delete a financial statement entry by ID",
-                "parameters": [
-                    {
+                        "minimum": 1,
                         "type": "integer",
-                        "description": "Financial Statement ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
+                        "default": 1,
+                        "description": "Номер страницы",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "maximum": 100,
+                        "minimum": 1,
+                        "type": "integer",
+                        "default": 20,
+                        "description": "Записей на странице",
+                        "name": "limit",
+                        "in": "query"
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "Success message",
+                        "description": "Пагинированный список фин. отчетов",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/models.PaginatedResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/models.FinancialStatement"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "400": {
-                        "description": "Bad Request - Invalid ID format",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.HTTPError"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found - Financial Statement not found",
+                        "description": "Неверный Regcode",
                         "schema": {
                             "$ref": "#/definitions/handlers.HTTPError"
                         }
                     },
                     "500": {
-                        "description": "Internal Server Error",
+                        "description": "Внутренняя ошибка сервера",
                         "schema": {
                             "$ref": "#/definitions/handlers.HTTPError"
                         }
@@ -1147,72 +843,72 @@
                 }
             }
         },
-        "/members": {
+        "/members/by-regcode/{regcode}": {
             "get": {
-                "description": "Retrieve a list of all member records",
+                "description": "Возвращает пагинированный список участников (members) для указанной компании.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "members"
+                    "member"
                 ],
-                "summary": "Get all member entries",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/models.Member"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.HTTPError"
-                        }
-                    }
-                }
-            },
-            "post": {
-                "description": "Add a new member record to the database",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "members"
-                ],
-                "summary": "Create a new member entry",
+                "summary": "Получить участников компании по Regcode",
                 "parameters": [
                     {
-                        "description": "Member data to create",
-                        "name": "member",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.Member"
-                        }
+                        "type": "string",
+                        "description": "Regcode компании",
+                        "name": "regcode",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "minimum": 1,
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Номер страницы",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "maximum": 100,
+                        "minimum": 1,
+                        "type": "integer",
+                        "default": 20,
+                        "description": "Записей на странице",
+                        "name": "limit",
+                        "in": "query"
                     }
                 ],
                 "responses": {
-                    "201": {
-                        "description": "Created",
+                    "200": {
+                        "description": "Пагинированный список участников",
                         "schema": {
-                            "$ref": "#/definitions/models.Member"
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/models.PaginatedResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/models.Member"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "400": {
-                        "description": "Bad Request - Invalid input data",
+                        "description": "Неверный Regcode",
                         "schema": {
                             "$ref": "#/definitions/handlers.HTTPError"
                         }
                     },
                     "500": {
-                        "description": "Internal Server Error",
+                        "description": "Внутренняя ошибка сервера",
                         "schema": {
                             "$ref": "#/definitions/handlers.HTTPError"
                         }
@@ -1220,151 +916,46 @@
                 }
             }
         },
-        "/members/{id}": {
+        "/register/{regcode}": {
             "get": {
-                "description": "Retrieve details of a specific member record using its ID",
+                "description": "Получает детальную информацию о компании по её Regcode.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "members"
+                    "register"
                 ],
-                "summary": "Get a single member entry by ID",
+                "summary": "Получить информацию о компании по Regcode",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "Member ID",
-                        "name": "id",
+                        "type": "string",
+                        "description": "Regcode компании",
+                        "name": "regcode",
                         "in": "path",
                         "required": true
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Информация о компании",
                         "schema": {
-                            "$ref": "#/definitions/models.Member"
+                            "$ref": "#/definitions/models.Registers"
                         }
                     },
                     "400": {
-                        "description": "Bad Request - Invalid ID format",
+                        "description": "Неверный Regcode",
                         "schema": {
                             "$ref": "#/definitions/handlers.HTTPError"
                         }
                     },
                     "404": {
-                        "description": "Not Found - Member not found",
+                        "description": "Компания не найдена",
                         "schema": {
                             "$ref": "#/definitions/handlers.HTTPError"
                         }
                     },
                     "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.HTTPError"
-                        }
-                    }
-                }
-            },
-            "put": {
-                "description": "Modify the details of an existing member record by ID",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "members"
-                ],
-                "summary": "Update an existing member entry",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Member ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Member data to update",
-                        "name": "member",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.Member"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/models.Member"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request - Invalid ID format or input data",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.HTTPError"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found - Member not found",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.HTTPError"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.HTTPError"
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "description": "Remove a member record from the database using its ID",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "members"
-                ],
-                "summary": "Delete a member entry by ID",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Member ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Success message",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request - Invalid ID format",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.HTTPError"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found - Member not found",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.HTTPError"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
+                        "description": "Внутренняя ошибка сервера",
                         "schema": {
                             "$ref": "#/definitions/handlers.HTTPError"
                         }
@@ -1374,222 +965,57 @@
         },
         "/registers": {
             "get": {
-                "description": "Retrieve a list of all register records",
+                "description": "Возвращает пагинированный список записей из таблицы registers.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "registers"
+                    "register"
                 ],
-                "summary": "Get all register entries",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/models.Register"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.HTTPError"
-                        }
-                    }
-                }
-            },
-            "post": {
-                "description": "Add a new register record to the database",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "registers"
-                ],
-                "summary": "Create a new register entry",
+                "summary": "Получить список всех записей регистра",
                 "parameters": [
                     {
-                        "description": "Register data to create",
-                        "name": "register",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.Register"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Created",
-                        "schema": {
-                            "$ref": "#/definitions/models.Register"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request - Invalid input data",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.HTTPError"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.HTTPError"
-                        }
-                    }
-                }
-            }
-        },
-        "/registers/{id}": {
-            "get": {
-                "description": "Retrieve details of a specific register record using its ID",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "registers"
-                ],
-                "summary": "Get a single register entry by ID",
-                "parameters": [
-                    {
+                        "minimum": 1,
                         "type": "integer",
-                        "description": "Register ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/models.Register"
-                        }
+                        "default": 1,
+                        "description": "Номер страницы",
+                        "name": "page",
+                        "in": "query"
                     },
-                    "400": {
-                        "description": "Bad Request - Invalid ID format",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.HTTPError"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found - Register not found",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.HTTPError"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.HTTPError"
-                        }
-                    }
-                }
-            },
-            "put": {
-                "description": "Modify the details of an existing register record by ID",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "registers"
-                ],
-                "summary": "Update an existing register entry",
-                "parameters": [
                     {
+                        "maximum": 100,
+                        "minimum": 1,
                         "type": "integer",
-                        "description": "Register ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Register data to update",
-                        "name": "register",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.Register"
-                        }
+                        "default": 20,
+                        "description": "Записей на странице",
+                        "name": "limit",
+                        "in": "query"
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Пагинированный список записей",
                         "schema": {
-                            "$ref": "#/definitions/models.Register"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request - Invalid ID format or input data",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.HTTPError"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found - Register not found",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.HTTPError"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.HTTPError"
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "description": "Remove a register record from the database using its ID",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "registers"
-                ],
-                "summary": "Delete a register entry by ID",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Register ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Success message",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request - Invalid ID format",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.HTTPError"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found - Register not found",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.HTTPError"
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/models.PaginatedResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/models.Registers"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "500": {
-                        "description": "Internal Server Error",
+                        "description": "Внутренняя ошибка сервера",
                         "schema": {
                             "$ref": "#/definitions/handlers.HTTPError"
                         }
@@ -1599,35 +1025,64 @@
         },
         "/search/detailed": {
             "get": {
-                "description": "Ищет компании по части названия, Regcode, SEPA, имени бенефициара или участника (member). Возвращает список компаний с полной информацией.",
+                "description": "Ищет компании по части названия, Regcode, SEPA, имени бенефициара или участника. Возвращает пагинированный список companies (registers) с вложенными связанными данными.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "search"
                 ],
-                "summary": "Расширенный поиск компаний",
+                "summary": "Расширенный поиск компаний (Оптимизированный + Пагинация + Вложенный ответ)",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Поисковый запрос (название, Regcode, SEPA, имя)",
+                        "description": "Поисковый запрос",
                         "name": "q",
                         "in": "query",
                         "required": true
+                    },
+                    {
+                        "minimum": 1,
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Номер страницы",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "maximum": 100,
+                        "minimum": 1,
+                        "type": "integer",
+                        "default": 20,
+                        "description": "Записей на странице",
+                        "name": "limit",
+                        "in": "query"
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "Список найденных компаний с детальной информацией",
+                        "description": "Пагинированный список компаний (с вложенными Members, BeneficialOwners, FinancialStatements)\" // \u003c-- ИЗМЕНЕНО data type на models.Registers",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/models.CompanySearchResult"
-                            }
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/models.PaginatedResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/models.Registers"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "400": {
-                        "description": "Неверный запрос - отсутствует параметр 'q'",
+                        "description": "Неверный запрос (отсутствует 'q')",
                         "schema": {
                             "$ref": "#/definitions/handlers.HTTPError"
                         }
@@ -1696,7 +1151,8 @@
                 "provisions": {
                     "type": "string"
                 },
-                "statement_id": {
+                "statementID": {
+                    "description": "\u003c--- Добавить/обновить тег",
                     "type": "string"
                 },
                 "total_assets": {
@@ -1720,6 +1176,7 @@
                     "type": "string"
                 },
                 "forename": {
+                    "description": "\u003c-- Индекс для поиска",
                     "type": "string"
                 },
                 "id": {
@@ -1729,9 +1186,11 @@
                     "type": "string"
                 },
                 "latvian_identity_number_masked": {
+                    "description": "... остальные поля ...",
                     "type": "string"
                 },
                 "legal_entity_registration_number": {
+                    "description": "Индекс нужен для поиска по компании и для связи в Registers",
                     "type": "string"
                 },
                 "nationality": {
@@ -1744,6 +1203,7 @@
                     "type": "string"
                 },
                 "surname": {
+                    "description": "\u003c-- Индекс для поиска",
                     "type": "string"
                 }
             }
@@ -1862,62 +1322,21 @@
                 "net_increase": {
                     "type": "string"
                 },
-                "statement_id": {
+                "statementID": {
+                    "description": "\u003c--- Добавить/обновить тег",
                     "type": "string"
-                }
-            }
-        },
-        "models.CompanySearchResult": {
-            "type": "object",
-            "properties": {
-                "beneficial_owners": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.BeneficialOwner"
-                    }
-                },
-                "financial_reports": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.FinancialReportDetail"
-                    }
-                },
-                "members": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.Member"
-                    }
-                },
-                "register_info": {
-                    "description": "Сделаем основным, не опциональным",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/models.Register"
-                        }
-                    ]
-                }
-            }
-        },
-        "models.FinancialReportDetail": {
-            "type": "object",
-            "properties": {
-                "balance_sheet": {
-                    "$ref": "#/definitions/models.BalanceSheet"
-                },
-                "cash_flow_statement": {
-                    "$ref": "#/definitions/models.CashFlowStatement"
-                },
-                "financial_statement_info": {
-                    "$ref": "#/definitions/models.FinancialStatement"
-                },
-                "income_statement": {
-                    "$ref": "#/definitions/models.IncomeStatement"
                 }
             }
         },
         "models.FinancialStatement": {
             "type": "object",
             "properties": {
+                "balanceSheet": {
+                    "$ref": "#/definitions/models.BalanceSheet"
+                },
+                "cashFlowStatement": {
+                    "$ref": "#/definitions/models.CashFlowStatement"
+                },
                 "created_at": {
                     "type": "string"
                 },
@@ -1933,19 +1352,30 @@
                 "id": {
                     "type": "integer"
                 },
-                "legal_entity_registration_number": {
+                "incomeStatement": {
+                    "description": "--- Связи (Один к одному/нулю с деталями) ---\nУказываем, что у Statement есть детали, связанные по ID этого Statement\nи колонке 'statement_id' в таблицах деталей.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.IncomeStatement"
+                        }
+                    ]
+                },
+                "legalEntityRegistrationNumber": {
+                    "description": "Индекс нужен для поиска по компании и для связи в Registers",
                     "type": "string"
                 },
                 "rounded_to_nearest": {
                     "type": "string"
                 },
                 "source_schema": {
+                    "description": "... остальные поля ...",
                     "type": "string"
                 },
                 "source_type": {
                     "type": "string"
                 },
                 "year": {
+                    "description": "\u003c-- Составной уникальный индекс",
                     "type": "string"
                 },
                 "year_ended_on": {
@@ -2043,7 +1473,8 @@
                 "provision_for_income_taxes": {
                     "type": "string"
                 },
-                "statement_id": {
+                "statementID": {
+                    "description": "\u003c--- Добавить/обновить тег",
                     "type": "string"
                 }
             }
@@ -2052,6 +1483,7 @@
             "type": "object",
             "properties": {
                 "at_legal_entity_registration_number": {
+                    "description": "Индекс нужен для поиска по компании и для связи в Registers",
                     "type": "string"
                 },
                 "birth_date": {
@@ -2070,12 +1502,15 @@
                     "type": "string"
                 },
                 "latvian_identity_number_masked": {
+                    "description": "... остальные поля ...",
                     "type": "string"
                 },
                 "legal_entity_registration_number": {
+                    "description": "Если это поле = regcode компании, где лицо является участником, то нужен индекс",
                     "type": "string"
                 },
                 "name": {
+                    "description": "\u003c-- Индекс для поиска по имени",
                     "type": "string"
                 },
                 "number_of_shares": {
@@ -2095,7 +1530,27 @@
                 }
             }
         },
-        "models.Register": {
+        "models.PaginatedResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "description": "Срез данных для текущей страницы"
+                },
+                "limit": {
+                    "description": "Лимит записей на странице",
+                    "type": "integer"
+                },
+                "page": {
+                    "description": "Текущий номер страницы",
+                    "type": "integer"
+                },
+                "total_records": {
+                    "description": "Общее количество записей (не только на странице)",
+                    "type": "integer"
+                }
+            }
+        },
+        "models.Registers": {
             "type": "object",
             "properties": {
                 "address": {
@@ -2107,37 +1562,59 @@
                 "atvk": {
                     "type": "string"
                 },
+                "beneficialOwners": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.BeneficialOwner"
+                    }
+                },
                 "city": {
                     "type": "string"
                 },
                 "closed": {
                     "type": "string"
                 },
+                "financialStatements": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.FinancialStatement"
+                    }
+                },
                 "id": {
                     "type": "integer"
                 },
-                "index_company": {
+                "indexCompany": {
                     "type": "string"
                 },
                 "latitude": {
-                    "type": "number"
+                    "type": "string"
                 },
                 "longitude": {
-                    "type": "number"
+                    "type": "string"
+                },
+                "members": {
+                    "description": "--- Связи ---\nУказываем, что у одной записи Registers может быть много записей Member,\nсвязанных по колонке 'legal_entity_registration_number' в таблице members,\nкоторая соответствует колонке 'regcode' в таблице registers.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Member"
+                    }
                 },
                 "name": {
+                    "description": "\u003c-- Добавим индекс для поиска по имени",
                     "type": "string"
                 },
-                "name_after_quotes": {
+                "nameAfterQuotes": {
                     "type": "string"
                 },
-                "name_before_quotes": {
+                "nameBeforeQuotes": {
                     "type": "string"
                 },
-                "name_in_quotes": {
+                "nameInQuotes": {
+                    "description": "\u003c-- Добавим индекс",
                     "type": "string"
                 },
                 "regcode": {
+                    "description": "Уникальный индекс уже есть",
                     "type": "string"
                 },
                 "region": {
@@ -2149,10 +1626,10 @@
                 "regtype": {
                     "type": "string"
                 },
-                "regtype_text": {
+                "regtypeText": {
                     "type": "string"
                 },
-                "reregistration_term": {
+                "reregistrationTerm": {
                     "type": "string"
                 },
                 "sepa": {
@@ -2164,10 +1641,11 @@
                 "type": {
                     "type": "string"
                 },
-                "type_text": {
+                "typeText": {
                     "type": "string"
                 },
-                "without_quotes": {
+                "withoutQuotes": {
+                    "description": "\u003c-- Добавим индекс",
                     "type": "string"
                 }
             }

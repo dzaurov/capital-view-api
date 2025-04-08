@@ -34,101 +34,80 @@ func main() {
 	}
 	log.Println("Database connection successful.")
 
+	// --- !!! ЯВНОЕ СОЗДАНИЕ УНИКАЛЬНЫХ И ОБЫЧНЫХ ИНДЕКСОВ !!! ---
+	log.Println("Ensuring necessary indexes exist...")
+	indexCommands := []string{
+		// Уникальные
+		"CREATE UNIQUE INDEX IF NOT EXISTS uq_fs_company_year ON financial_statements (legal_entity_registration_number, year)",
+		"CREATE UNIQUE INDEX IF NOT EXISTS uq_is_statement_id ON income_statements (statement_id)",
+		"CREATE UNIQUE INDEX IF NOT EXISTS uq_bs_statement_id ON balance_sheets (statement_id)",
+		"CREATE UNIQUE INDEX IF NOT EXISTS uq_cfs_statement_id ON cash_flow_statements (statement_id)",
+		"CREATE UNIQUE INDEX IF NOT EXISTS uq_reg_regcode ON registers (regcode)",
+
+		// Обычные индексы для ускорения поиска LIKE и связей Preload
+		"CREATE INDEX IF NOT EXISTS idx_registers_name ON registers (name)",                                     // <-- Для LIKE
+		"CREATE INDEX IF NOT EXISTS idx_registers_name_in_quotes ON registers (name_in_quotes)",                 // <-- Для LIKE
+		"CREATE INDEX IF NOT EXISTS idx_registers_without_quotes ON registers (without_quotes)",                 // <-- Для LIKE
+		"CREATE INDEX IF NOT EXISTS idx_members_regcode ON members (legal_entity_registration_number)",          // <-- Для Preload
+		"CREATE INDEX IF NOT EXISTS idx_members_name ON members (name)",                                         // <-- Для LIKE
+		"CREATE INDEX IF NOT EXISTS idx_owners_regcode ON beneficial_owners (legal_entity_registration_number)", // <-- Для Preload
+		"CREATE INDEX IF NOT EXISTS idx_owners_forename ON beneficial_owners (forename)",                        // <-- Для LIKE
+		"CREATE INDEX IF NOT EXISTS idx_owners_surname ON beneficial_owners (surname)",                          // <-- Для LIKE
+		// Индекс для financial_statements.legal_entity_registration_number уже покрыт уникальным составным
+	}
+	for _, cmd := range indexCommands {
+		if tx := db.DB.Exec(cmd); tx.Error != nil {
+			log.Printf("WARN: Failed to execute index command: %v - SQL: %s", tx.Error, cmd)
+		}
+	}
+	log.Println("Indexes checked/created.")
+	// ---------------------------------------------------------
+
 	// Initialize Gin router
 	router := gin.Default()
 
-	// API v1 Group
+	// Настройка эндпоинтов API v1
 	v1 := router.Group("/api/v1")
 	{
-		// --- Register Routes ---
-		registers := v1.Group("/registers")
-		{
-			registers.POST("", handlers.CreateRegister)      // POST /api/v1/registers
-			registers.GET("", handlers.GetRegisters)         // GET /api/v1/registers
-			registers.GET(":id", handlers.GetRegister)       // GET /api/v1/registers/:id
-			registers.PUT(":id", handlers.UpdateRegister)    // PUT /api/v1/registers/:id
-			registers.DELETE(":id", handlers.DeleteRegister) // DELETE /api/v1/registers/:id
-		}
+		// Register routes
+		// GET /api/v1/registers - Получить список (пагинированный)
+		v1.GET("/registers", handlers.GetAllRegisters) // <-- ИСПРАВЛЕНО: Используем GetAllRegisters
 
-		// --- Member Routes ---
-		members := v1.Group("/members")
-		{
-			// *** UNCOMMENT AND ADD THESE LINES ***
-			members.POST("", handlers.CreateMember)      // POST /api/v1/members
-			members.GET("", handlers.GetMembers)         // GET /api/v1/members
-			members.GET(":id", handlers.GetMember)       // GET /api/v1/members/:id
-			members.PUT(":id", handlers.UpdateMember)    // PUT /api/v1/members/:id
-			members.DELETE(":id", handlers.DeleteMember) // DELETE /api/v1/members/:id
-		}
+		// GET /api/v1/register/:regcode - Получить один по regcode
+		v1.GET("/register/:regcode", handlers.GetRegisterByID) // <-- ИСПРАВЛЕНО: Используем GetRegisterByID
 
-		// --- Income Statement Routes ---
-		incomeStatements := v1.Group("/income-statements")
-		{
-			// *** UNCOMMENT AND ADD THESE LINES ***
-			incomeStatements.POST("", handlers.CreateIncomeStatement)      // POST /api/v1/income-statements
-			incomeStatements.GET("", handlers.GetIncomeStatements)         // GET /api/v1/income-statements
-			incomeStatements.GET(":id", handlers.GetIncomeStatement)       // GET /api/v1/income-statements/:id
-			incomeStatements.PUT(":id", handlers.UpdateIncomeStatement)    // PUT /api/v1/income-statements/:id
-			incomeStatements.DELETE(":id", handlers.DeleteIncomeStatement) // DELETE /api/v1/income-statements/:id
-		}
+		// --- ЗАКОММЕНТИРОВАНО/УДАЛЕНО, т.к. хендлеров нет ---
+		// v1.POST("/register", handlers.CreateRegister)
+		// v1.PUT("/register/:regcode", handlers.UpdateRegister)
+		// v1.DELETE("/register/:regcode", handlers.DeleteRegister)
+		// -----------------------------------------------------
 
-		// --- Financial Statement Routes ---
-		financialStatements := v1.Group("/financial-statements")
-		{
-			// *** UNCOMMENT AND ADD THESE LINES ***
-			financialStatements.POST("", handlers.CreateFinancialStatement)      // POST /api/v1/financial-statements
-			financialStatements.GET("", handlers.GetFinancialStatements)         // GET /api/v1/financial-statements
-			financialStatements.GET(":id", handlers.GetFinancialStatement)       // GET /api/v1/financial-statements/:id
-			financialStatements.PUT(":id", handlers.UpdateFinancialStatement)    // PUT /api/v1/financial-statements/:id
-			financialStatements.DELETE(":id", handlers.DeleteFinancialStatement) // DELETE /api/v1/financial-statements/:id
-		}
+		// Member routes
+		// GET /api/v1/members/by-regcode/:regcode - Получить список по Regcode компании (пагинированный)
+		v1.GET("/members/by-regcode/:regcode", handlers.GetMembersByRegcode) // <-- Этот хендлер существует
 
-		// --- Cash Flow Statement Routes ---
-		cashFlowStatements := v1.Group("/cash-flow-statements")
-		{
-			// *** UNCOMMENT AND ADD THESE LINES ***
-			cashFlowStatements.POST("", handlers.CreateCashFlowStatement)      // POST /api/v1/cash-flow-statements
-			cashFlowStatements.GET("", handlers.GetCashFlowStatements)         // GET /api/v1/cash-flow-statements
-			cashFlowStatements.GET(":id", handlers.GetCashFlowStatement)       // GET /api/v1/cash-flow-statements/:id
-			cashFlowStatements.PUT(":id", handlers.UpdateCashFlowStatement)    // PUT /api/v1/cash-flow-statements/:id
-			cashFlowStatements.DELETE(":id", handlers.DeleteCashFlowStatement) // DELETE /api/v1/cash-flow-statements/:id
-		}
+		// --- ЗАКОММЕНТИРОВАНО/УДАЛЕНО, т.к. хендлеров нет ---
+		// v1.POST("/member", handlers.CreateMember)
+		// v1.GET("/members", handlers.GetMembers) // <-- НЕТ ХЕНДЛЕРА для получения ВСЕХ members (только по regcode)
+		// v1.GET("/member/:id", handlers.GetMember) // <-- НЕТ ХЕНДЛЕРА для получения по ID участника
+		// v1.PUT("/member/:id", handlers.UpdateMember)
+		// v1.DELETE("/member/:id", handlers.DeleteMember)
+		// -----------------------------------------------------
 
-		// --- Beneficial Owner Routes ---
-		beneficialOwners := v1.Group("/beneficial-owners")
-		{
-			// *** UNCOMMENT AND ADD THESE LINES ***
-			beneficialOwners.POST("", handlers.CreateBeneficialOwner)      // POST /api/v1/beneficial-owners
-			beneficialOwners.GET("", handlers.GetBeneficialOwners)         // GET /api/v1/beneficial-owners
-			beneficialOwners.GET(":id", handlers.GetBeneficialOwner)       // GET /api/v1/beneficial-owners/:id
-			beneficialOwners.PUT(":id", handlers.UpdateBeneficialOwner)    // PUT /api/v1/beneficial-owners/:id
-			beneficialOwners.DELETE(":id", handlers.DeleteBeneficialOwner) // DELETE /api/v1/beneficial-owners/:id
-		}
+		// Beneficial Owner routes
+		v1.GET("/beneficial-owners/by-regcode/:regcode", handlers.GetBeneficialOwnersByRegcode) // <-- Этот хендлер существует
+		// --- Закомментируйте/удалите CRUD для owners, если их нет ---
 
-		// --- Balance Sheet Routes ---
-		balanceSheets := v1.Group("/balance-sheets")
-		{
-			// *** UNCOMMENT AND ADD THESE LINES ***
-			balanceSheets.POST("", handlers.CreateBalanceSheet)      // POST /api/v1/balance-sheets
-			balanceSheets.GET("", handlers.GetBalanceSheets)         // GET /api/v1/balance-sheets
-			balanceSheets.GET(":id", handlers.GetBalanceSheet)       // GET /api/v1/balance-sheets/:id
-			balanceSheets.PUT(":id", handlers.UpdateBalanceSheet)    // PUT /api/v1/balance-sheets/:id
-			balanceSheets.DELETE(":id", handlers.DeleteBalanceSheet) // DELETE /api/v1/balance-sheets/:id
-		}
+		// Financial Statement routes
+		v1.GET("/financial-statements/by-regcode/:regcode", handlers.GetFinancialStatementsByRegcode) // <-- Этот хендлер существует
+		// --- Закомментируйте/удалите CRUD для statements, если их нет ---
 
-		v1 := router.Group("/api/v1")
+		// Search routes
+		searchGroup := v1.Group("/search")
 		{
-			// ... (существующие маршруты для register, members, etc.) ...
-
-			// Добавляем маршрут для детального поиска
-			search := v1.Group("/search")
-			{
-				search.GET("/detailed", handlers.DetailedSearch) // GET /api/v1/search/detailed?q=...
-				// Можно оставить и предыдущий поиск, если нужно
-				// search.GET("/companies", handlers.SearchCompanies)
-			}
+			searchGroup.GET("/detailed", handlers.DetailedSearch) // <-- Этот хендлер существует
 		}
-	}
+	} // конец v1
 
 	// Swagger Documentation Route
 	// The URL will be http://localhost:8080/swagger/index.html (or your host/port)
