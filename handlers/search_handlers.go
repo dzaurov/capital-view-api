@@ -64,7 +64,7 @@ func DetailedSearch(c *gin.Context) {
 		var registerMatches []RegCodeResult
 		log.Println("DetailedSearch: Goroutine(register): Начало поиска...")
 		// Используем debugDB и LOWER() для регистронезависимого поиска
-		err := debugDB.Model(&models.Register{}). // Используем debugDB
+		err := debugDB.Model(&models.Registers{}). // Используем debugDB
 								Select("regcode").
 								Where("LOWER(regcode) = ?", searchTermLower). // Поиск по regcode тоже сделаем регистронезависимым
 								Or("LOWER(sepa) = ?", searchTermLower).       // И по sepa
@@ -220,7 +220,7 @@ func DetailedSearch(c *gin.Context) {
 		log.Printf("DetailedSearch: Этап 2: Обработка ID: %s", regCode)
 		// ... (весь ваш код для Этапа 2 без изменений) ...
 
-		var companyRegister models.Register
+		var companyRegister models.Registers
 		var members []models.Member
 		var beneficialOwners []models.BeneficialOwner
 		var financialStatements []models.FinancialStatement

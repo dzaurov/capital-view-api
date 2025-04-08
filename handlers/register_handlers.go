@@ -28,13 +28,13 @@ func NewHTTPError(err error) HTTPError {
 // @Tags registers
 // @Accept json
 // @Produce json
-// @Param register body models.Register true "Register data to create"
-// @Success 201 {object} models.Register
+// @Param register body models.Registers true "Register data to create"
+// @Success 201 {object} models.Registers
 // @Failure 400 {object} HTTPError "Bad Request - Invalid input data"
 // @Failure 500 {object} HTTPError "Internal Server Error"
 // @Router /registers [post]
 func CreateRegister(c *gin.Context) {
-	var input models.Register
+	var input models.Registers
 	if err := c.ShouldBindJSON(&input); err != nil {
 		c.JSON(http.StatusBadRequest, NewHTTPError(err))
 		return
@@ -55,11 +55,11 @@ func CreateRegister(c *gin.Context) {
 // @Description Retrieve a list of all register records
 // @Tags registers
 // @Produce json
-// @Success 200 {array} models.Register
+// @Success 200 {array} models.Registers
 // @Failure 500 {object} HTTPError "Internal Server Error"
 // @Router /registers [get]
 func GetRegisters(c *gin.Context) {
-	var registers []models.Register
+	var registers []models.Registers
 	result := db.DB.Find(&registers)
 	if result.Error != nil {
 		c.JSON(http.StatusInternalServerError, NewHTTPError(result.Error))
@@ -74,7 +74,7 @@ func GetRegisters(c *gin.Context) {
 // @Tags registers
 // @Produce json
 // @Param id path int true "Register ID"
-// @Success 200 {object} models.Register
+// @Success 200 {object} models.Registers
 // @Failure 400 {object} HTTPError "Bad Request - Invalid ID format"
 // @Failure 404 {object} HTTPError "Not Found - Register not found"
 // @Failure 500 {object} HTTPError "Internal Server Error"
@@ -87,7 +87,7 @@ func GetRegister(c *gin.Context) {
 		return
 	}
 
-	var register models.Register
+	var register models.Registers
 	result := db.DB.First(&register, uint(id)) // GORM expects the correct type for the ID
 
 	if result.Error != nil {
@@ -109,8 +109,8 @@ func GetRegister(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param id path int true "Register ID"
-// @Param register body models.Register true "Register data to update"
-// @Success 200 {object} models.Register
+// @Param register body models.Registers true "Register data to update"
+// @Success 200 {object} models.Registers
 // @Failure 400 {object} HTTPError "Bad Request - Invalid ID format or input data"
 // @Failure 404 {object} HTTPError "Not Found - Register not found"
 // @Failure 500 {object} HTTPError "Internal Server Error"
@@ -124,7 +124,7 @@ func UpdateRegister(c *gin.Context) {
 	}
 
 	// Check if record exists
-	var existingRegister models.Register
+	var existingRegister models.Registers
 	if err := db.DB.First(&existingRegister, uint(id)).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			c.JSON(http.StatusNotFound, NewHTTPError(errors.New("register not found to update")))
@@ -136,7 +136,7 @@ func UpdateRegister(c *gin.Context) {
 
 	// Bind JSON data to update
 	// Use a map or a dedicated update struct if you only want to allow specific fields to be updated
-	var input models.Register
+	var input models.Registers
 	if err := c.ShouldBindJSON(&input); err != nil {
 		c.JSON(http.StatusBadRequest, NewHTTPError(err))
 		return
@@ -176,7 +176,7 @@ func DeleteRegister(c *gin.Context) {
 	}
 
 	// Delete the record
-	result := db.DB.Delete(&models.Register{}, uint(id))
+	result := db.DB.Delete(&models.Registers{}, uint(id))
 
 	if result.Error != nil {
 		// Handle potential errors during delete, though gorm.ErrRecordNotFound isn't typically returned on Delete

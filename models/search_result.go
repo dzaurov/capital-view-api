@@ -11,7 +11,7 @@ type FinancialReportDetail struct {
 
 // CompanySearchResult объединяет всю информацию по найденной компании
 type CompanySearchResult struct {
-	RegisterInfo     *Register               `json:"register_info"` // Сделаем основным, не опциональным
+	RegisterInfo     *Registers              `json:"register_info"` // Сделаем основным, не опциональным
 	Members          []Member                `json:"members,omitempty"`
 	BeneficialOwners []BeneficialOwner       `json:"beneficial_owners,omitempty"`
 	FinancialReports []FinancialReportDetail `json:"financial_reports,omitempty"`

@@ -1,8 +1,0 @@
-statement_id;file_id;cash;marketable_securities;accounts_receivable;inventories;total_current_assets;investments;fixed_assets;intangible_assets;total_non_current_assets;total_assets;future_housing_repairs_payments;current_liabilities;non_current_liabilities;provisions;equity;total_equities
-709390;16544390;1;0;257;4773;5031;0;0;0;0;5031;;20314;0;0;-15283;5031
-709391;16544392;0;0;0;0;0;0;0;0;0;0;;608;0;0;-608;0
-709392;16544401;2455;0;4988;0;7443;0;4118;0;4118;11561;;5494;0;0;6067;11561
-709393;16544404;12;0;0;0;12;0;0;0;0;12;;1657;0;0;-1645;12
-709394;16544411;1;0;0;0;1;0;0;0;0;1;;287;0;;-286;1
-709395;16544413;369;0;1139;0;1508;20500;0;0;20500;22008;;2019;30000;0;-10011;22008
-709396;16544422;50;0;0;0;50;0;0;0;0;50;;0;4552;0;-4502;50

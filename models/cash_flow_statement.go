@@ -2,7 +2,7 @@ package models
 
 type CashFlowStatement struct {
 	ID                                                     uint    `gorm:"primaryKey;autoIncrement" json:"id"`
-	StatementID                                            *string `json:"statement_id,omitempty"`
+	StatementID                                            *string `gorm:"uniqueIndex"` // <--- Добавить/обновить тег
 	FileID                                                 *string `json:"file_id,omitempty"`
 	CfoDmCashReceivedFromCustomers                         *string `json:"cfo_dm_cash_received_from_customers,omitempty"`
 	CfoDmCashPaidToSuppliersEmployees                      *string `json:"cfo_dm_cash_paid_to_suppliers_employees,omitempty"`

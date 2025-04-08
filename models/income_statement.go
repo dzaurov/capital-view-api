@@ -2,7 +2,7 @@ package models
 
 type IncomeStatement struct {
 	ID                                 uint    `gorm:"primaryKey;autoIncrement" json:"id"`
-	StatementID                        *string `json:"statement_id,omitempty"`
+	StatementID                        *string `gorm:"uniqueIndex"` // <--- Добавить/обновить тег
 	FileID                             *string `json:"file_id,omitempty"`
 	NetTurnover                        *string `json:"net_turnover,omitempty"`
 	ByNatureInventoryChange            *string `json:"by_nature_inventory_change,omitempty"`

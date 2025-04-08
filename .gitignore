@@ -1,1 +1,10 @@
+./csv_real
+mydata.db
+csv_real/balance_sheets.csv
+csv_real/beneficial_owners.csv
+csv_real/cash_flow_statements.csv
+csv_real/financial_statements.csv
+csv_real/income_statements.csv
+csv_real/members.csv
+csv_real/register.csv
 mydata.db

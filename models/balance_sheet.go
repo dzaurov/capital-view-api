@@ -2,7 +2,7 @@ package models
 
 type BalanceSheet struct {
 	ID                           uint    `gorm:"primaryKey;autoIncrement" json:"id"`
-	StatementID                  *string `json:"statement_id,omitempty"`
+	StatementID                  *string `gorm:"uniqueIndex"` // <--- Добавить/обновить тег
 	FileID                       *string `json:"file_id,omitempty"`
 	Cash                         *string `json:"cash,omitempty"`
 	MarketableSecurities         *string `json:"marketable_securities,omitempty"`
