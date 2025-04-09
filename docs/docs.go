@@ -24,231 +24,6 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/balance-sheets": {
-            "get": {
-                "description": "Retrieve a list of all balance sheet records",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "balance-sheets"
-                ],
-                "summary": "Get all balance sheet entries",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/models.BalanceSheet"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.HTTPError"
-                        }
-                    }
-                }
-            },
-            "post": {
-                "description": "Add a new balance sheet record to the database",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "balance-sheets"
-                ],
-                "summary": "Create a new balance sheet entry",
-                "parameters": [
-                    {
-                        "description": "Balance Sheet data to create",
-                        "name": "balanceSheet",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.BalanceSheet"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Created",
-                        "schema": {
-                            "$ref": "#/definitions/models.BalanceSheet"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request - Invalid input data",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.HTTPError"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.HTTPError"
-                        }
-                    }
-                }
-            }
-        },
-        "/balance-sheets/{id}": {
-            "get": {
-                "description": "Retrieve details of a specific balance sheet record using its ID",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "balance-sheets"
-                ],
-                "summary": "Get a single balance sheet entry by ID",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Balance Sheet ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/models.BalanceSheet"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request - Invalid ID format",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.HTTPError"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found - Balance Sheet not found",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.HTTPError"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.HTTPError"
-                        }
-                    }
-                }
-            },
-            "put": {
-                "description": "Modify the details of an existing balance sheet record by ID",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "balance-sheets"
-                ],
-                "summary": "Update an existing balance sheet entry",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Balance Sheet ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Balance Sheet data to update",
-                        "name": "balanceSheet",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.BalanceSheet"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/models.BalanceSheet"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request - Invalid ID format or input data",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.HTTPError"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found - Balance Sheet not found",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.HTTPError"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.HTTPError"
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "description": "Remove a balance sheet record from the database using its ID",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "balance-sheets"
-                ],
-                "summary": "Delete a balance sheet entry by ID",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Balance Sheet ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Success message",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request - Invalid ID format",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.HTTPError"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found - Balance Sheet not found",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.HTTPError"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.HTTPError"
-                        }
-                    }
-                }
-            }
-        },
         "/beneficial-owners/by-regcode/{regcode}": {
             "get": {
                 "description": "Возвращает пагинированный список бенефициаров (beneficial owners) для указанной компании.",
@@ -540,6 +315,53 @@ const docTemplate = `{
                     },
                     "500": {
                         "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
+        "/company/{regcode}": {
+            "get": {
+                "description": "Получает детальную информацию о компании, включая участников, бенефициаров и фин. отчеты, по её точному Regcode.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "company"
+                ],
+                "summary": "Получить полную информацию о компании по Regcode",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Regcode компании",
+                        "name": "regcode",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Полная информация о компании (с вложенными данными)",
+                        "schema": {
+                            "$ref": "#/definitions/models.Registers"
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный или отсутствующий Regcode",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Компания не найдена",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
                         "schema": {
                             "$ref": "#/definitions/handlers.HTTPError"
                         }
@@ -1027,18 +849,18 @@ const docTemplate = `{
         },
         "/search/detailed": {
             "get": {
-                "description": "Ищет компании по части названия, Regcode, SEPA, имени бенефициара или участника. Возвращает пагинированный список companies (registers) с вложенными связанными данными.",
+                "description": "Ищет компании **только** по полям таблицы регистра (Regcode, SEPA, Name). Возвращает пагинированный список с базовой информацией. // \u003c-- Описание изменено",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "search"
                 ],
-                "summary": "Расширенный поиск компаний (Оптимизированный + Пагинация + Вложенный ответ)",
+                "summary": "Упрощенный поиск компаний (с пагинацией)",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Поисковый запрос",
+                        "description": "Поисковый запрос (Regcode, SEPA, Name)",
                         "name": "q",
                         "in": "query",
                         "required": true
@@ -1063,7 +885,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "Пагинированный список компаний (с вложенными Members, BeneficialOwners, FinancialStatements)\" // \u003c-- ИЗМЕНЕНО data type на models.Registers",
+                        "description": "Пагинированный список базовой информации о компаниях",
                         "schema": {
                             "allOf": [
                                 {
@@ -1075,7 +897,7 @@ const docTemplate = `{
                                         "data": {
                                             "type": "array",
                                             "items": {
-                                                "$ref": "#/definitions/models.Registers"
+                                                "$ref": "#/definitions/models.SimpleRegisterInfo"
                                             }
                                         }
                                     }
@@ -1648,6 +1470,26 @@ const docTemplate = `{
                 },
                 "withoutQuotes": {
                     "description": "\u003c-- Добавим индекс",
+                    "type": "string"
+                }
+            }
+        },
+        "models.SimpleRegisterInfo": {
+            "type": "object",
+            "properties": {
+                "Address": {
+                    "type": "string"
+                },
+                "Name": {
+                    "type": "string"
+                },
+                "Regcode": {
+                    "type": "string"
+                },
+                "RegtypeText": {
+                    "type": "string"
+                },
+                "TypeText": {
                     "type": "string"
                 }
             }

@@ -69,43 +69,32 @@ func main() {
 	// Настройка эндпоинтов API v1
 	v1 := router.Group("/api/v1")
 	{
+		// --- !!! ДОБАВИТЬ РОУТ ДЛЯ ПОЛНОЙ ИНФОРМАЦИИ О КОМПАНИИ !!! ---
+		v1.GET("/company/:regcode", handlers.GetCompanyDetailsByRegcode)
+		// ---------------------------------------------------------------
+
 		// Register routes
-		// GET /api/v1/registers - Получить список (пагинированный)
-		v1.GET("/registers", handlers.GetAllRegisters) // <-- ИСПРАВЛЕНО: Используем GetAllRegisters
-
-		// GET /api/v1/register/:regcode - Получить один по regcode
-		v1.GET("/register/:regcode", handlers.GetRegisterByID) // <-- ИСПРАВЛЕНО: Используем GetRegisterByID
-
-		// --- ЗАКОММЕНТИРОВАНО/УДАЛЕНО, т.к. хендлеров нет ---
-		// v1.POST("/register", handlers.CreateRegister)
-		// v1.PUT("/register/:regcode", handlers.UpdateRegister)
-		// v1.DELETE("/register/:regcode", handlers.DeleteRegister)
-		// -----------------------------------------------------
+		v1.GET("/registers", handlers.GetAllRegisters)
+		v1.GET("/register/:regcode", handlers.GetRegisterByID) // Этот остается для базовой инфы
+		// ... (закомментированные CRUD роуты) ...
 
 		// Member routes
-		// GET /api/v1/members/by-regcode/:regcode - Получить список по Regcode компании (пагинированный)
-		v1.GET("/members/by-regcode/:regcode", handlers.GetMembersByRegcode) // <-- Этот хендлер существует
-
-		// --- ЗАКОММЕНТИРОВАНО/УДАЛЕНО, т.к. хендлеров нет ---
-		// v1.POST("/member", handlers.CreateMember)
-		// v1.GET("/members", handlers.GetMembers) // <-- НЕТ ХЕНДЛЕРА для получения ВСЕХ members (только по regcode)
-		// v1.GET("/member/:id", handlers.GetMember) // <-- НЕТ ХЕНДЛЕРА для получения по ID участника
-		// v1.PUT("/member/:id", handlers.UpdateMember)
-		// v1.DELETE("/member/:id", handlers.DeleteMember)
-		// -----------------------------------------------------
+		v1.GET("/members/by-regcode/:regcode", handlers.GetMembersByRegcode)
+		// ... (закомментированные CRUD роуты) ...
 
 		// Beneficial Owner routes
-		v1.GET("/beneficial-owners/by-regcode/:regcode", handlers.GetBeneficialOwnersByRegcode) // <-- Этот хендлер существует
-		// --- Закомментируйте/удалите CRUD для owners, если их нет ---
+		v1.GET("/beneficial-owners/by-regcode/:regcode", handlers.GetBeneficialOwnersByRegcode)
+		// ... (закомментированные CRUD роуты) ...
 
 		// Financial Statement routes
-		v1.GET("/financial-statements/by-regcode/:regcode", handlers.GetFinancialStatementsByRegcode) // <-- Этот хендлер существует
-		// --- Закомментируйте/удалите CRUD для statements, если их нет ---
+		v1.GET("/financial-statements/by-regcode/:regcode", handlers.GetFinancialStatementsByRegcode)
+		// ... (закомментированные CRUD роуты) ...
 
 		// Search routes
 		searchGroup := v1.Group("/search")
 		{
-			searchGroup.GET("/detailed", handlers.DetailedSearch) // <-- Этот хендлер существует
+			// Этот роут теперь возвращает УПРОЩЕННЫЕ данные
+			searchGroup.GET("/detailed", handlers.DetailedSearch)
 		}
 	} // конец v1
 
